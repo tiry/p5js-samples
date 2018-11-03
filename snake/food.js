@@ -14,7 +14,7 @@ class Food {
             this.foodItems.push(f);
         }
     }
-
+    
     getItems() {
         return this.foodItems;
     }
