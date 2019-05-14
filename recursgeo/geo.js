@@ -124,6 +124,10 @@ function makeBranch(l) {
     l2=l*factor.value();
     if (l2>8) {
         makeBranch(l2);
+    } else {
+        fill(0,200 + Math.random()*55,0);
+        ellipse(0,0,8);
+
     }
     pop();
 
