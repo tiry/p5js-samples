@@ -11,6 +11,9 @@ var MIN_AGE=80;
 var MAX_MATURITY=20;
 var MIN_MATURITY=10;
 
+var MAX_REPRO=70;
+var MIN_REPRO=40;
+
 var LIFE_COST = 0.01;
 
 var MAX_GESTATION=20;
@@ -135,24 +138,52 @@ class Space {
     }
 }
 
+class DNA {
+
+    constructor(father, mother) {            
+
+        if (father != undefined && mother != undefined) {
+            this.speed = Math.round((father.speed + mother.speed)/2);
+            this.size = Math.round((father.size + mother.size)/2);
+            this.lifeSpan = Math.round((father.lifeSpan + mother.lifeSpan)/2);
+            this.maturity = Math.round((father.maturity + mother.maturity)/2);
+            this.gestation = Math.round((father.gestation + mother.gestation)/2);
+            this.reproductionBoost = Math.round((father.reproductionBoost + mother.reproductionBoost)/2);
+            this.startEnergy = Math.round((father.startEnergy + mother.startEnergy)/2);
+            this.generation = Math.max(father.generation, mother.generation)+1;
+        } else {
+            this.speed = Math.round(MIN_SPEED + Math.random() * (MAX_SPEED- MIN_SPEED));
+            this.size = Math.round(MIN_SIZE + Math.random() * (MAX_SIZE- MIN_SIZE));
+            this.lifeSpan = Math.round(MIN_AGE + Math.random() * (MAX_AGE- MIN_AGE));
+            this.startEnergy = Math.round(MIN_NRJ + Math.random() * (MAX_NRJ- MIN_NRJ));
+            this.maturity = Math.round(MIN_MATURITY + Math.random() * (MAX_MATURITY- MIN_MATURITY));
+            this.gestation = Math.round(MIN_GESTATION + Math.random() * (MAX_GESTATION- MIN_GESTATION));
+            this.reproductionBoost = Math.round(MIN_REPRO + Math.random() * (MAX_REPRO- MIN_REPRO));
+            this.generation = 1;        
+        }
+
+    }
+
+    summary() {
+
+    }
+}
+
+
+var mousePolulation=0;
+
+function incMousePolulation() {
+    return mousePolulation++;
+}
+
 class Mouse {
 
     constructor(space, gnome, x, y) {        
 
         if (gnome===undefined) {
-            this.gnome = {
-                speed : Math.round(MIN_SPEED + Math.random() * (MAX_SPEED- MIN_SPEED)),
-                size : Math.round(MIN_SIZE + Math.random() * (MAX_SIZE- MIN_SIZE)),
-                lifeSpan : Math.round(MIN_AGE + Math.random() * (MAX_AGE- MIN_AGE)),
-                startEnergy : Math.round(MIN_NRJ + Math.random() * (MAX_NRJ- MIN_NRJ)),
-                maturity : Math.round(MIN_MATURITY + Math.random() * (MAX_MATURITY- MIN_MATURITY)),
-                gestation : Math.round(MIN_GESTATION + Math.random() * (MAX_GESTATION- MIN_GESTATION)),
-                generation:1
-            }
-            this.generation=1;
+            this.gnome = new DNA();
         } else {
             this.gnome = Object.assign({}, gnome);    
-            this.gnome.generation+=1;
         }
 
         // speed
@@ -166,6 +197,8 @@ class Mouse {
         this.age = Math.round(1 + Math.random()*5);
 
         this.lifeSpan = Math.round(this.gnome.lifeSpan * dnaExpress());
+
+        this.reproductionBoost = Math.round(this.gnome.reproductionBoost * dnaExpress());
 
         this.energy = Math.round(this.gnome.startEnergy * dnaExpress());
 
@@ -184,7 +217,7 @@ class Mouse {
 
         this.sex = Math.round(Math.random());
 
-        this.id = Math.random();
+        this.uuid= incMousePolulation();
         this.selected=false;
     }
     
@@ -199,13 +232,13 @@ class Mouse {
 
     _chooseFoodOverReproduction(foodScore, reproductionScore) {
 
-
         // reproduction need increases with age as a sinusiod
-        reproductionScore = 1.2 * reproductionScore * Math.sin(Math.PI* this.age / this.lifeSpan);
+        reproductionScore = (1+this.reproductionBoost/100) * reproductionScore * Math.sin(Math.PI* this.age / this.lifeSpan);
         
         // food is more important if low energy
         foodScore = foodScore * (this.gnome.startEnergy/this.energy)
 
+        // if there is a lot of food, no need to look for it 
         if (this.space.food.length > this.space.mouses.length) {
             reproductionScore=reproductionScore*2;
         }
@@ -298,7 +331,7 @@ class Mouse {
         var availableEnergy = cloningEnergy;
 
         var nbChildren=0;
-        while (availableEnergy>0) {
+        while (availableEnergy>0 && nbChildren < 5 ) {
 
             var nrj = Math.round((this.gnome.startEnergy + other.gnome.startEnergy)/2);
 
@@ -309,19 +342,12 @@ class Mouse {
                 availableEnergy = availableEnergy-nrj;
             }
 
-            this.space.mouses.push(new Mouse(this.space, {
-                speed : Math.round((this.gnome.speed + other.gnome.speed)/2),
-                size : Math.round((this.gnome.size + other.gnome.size)/2),
-                lifeSpan : Math.round((this.gnome.lifeSpan + other.gnome.lifeSpan)/2),
-                maturity : Math.round((this.gnome.maturity + other.gnome.maturity)/2),
-                gestation : Math.round((this.gnome.gestation + other.gnome.gestation)/2), 
-                startEnergy : nrj,
-                generation : Math.max(this.gnome.generation, this.gnome.generation)
-            }, this.pos.x, this.pos.y));
+            var newDNA = new DNA(this.gnome, other.gnome);
+            newDNA.startEnergy = nrj;
+            this.space.mouses.push(new Mouse(this.space, newDNA , this.pos.x, this.pos.y));
             nbChildren++;
 
         }
-
 
         this.gestation = Math.round(this.gnome.gestation * nbChildren/2);
         other.gestation = Math.round(other.gnome.gestation * nbChildren/2);
@@ -340,7 +366,7 @@ class Mouse {
 
     _computeAttraction(other) {
 
-        if (other.id==this.id) {
+        if (other.uuid==this.uuid) {
             return 0;
         }
 
@@ -350,7 +376,6 @@ class Mouse {
 
         //check collision
         if (other.pos.dist(this.pos) < (other.size/2+this.size/2+2)) {
-
 
             // elastic collision                            
             var v1 = p5.Vector.add(p5.Vector.mult(other.speed,(other.size-this.size)/(other.size+this.size)), p5.Vector.mult(this.speed,(2*this.size)/(other.size+this.size)));
@@ -365,7 +390,6 @@ class Mouse {
             }
 
             if (other.mature() && other.sex != this.sex && other.gestation==0) {
-                // XXX
                 this._reproduce(other);
                 return 0;
             }
@@ -498,6 +522,8 @@ class Mouse {
         noStroke();    
         fill(0, 0, 0);
         textSize(10);
+        text("id   : " + this.uuid, x,y);
+        y+=10;
         text("nrj   : " + this.energy, x,y);
         y+=10;
         text("age   : " + Math.round(this.age) + " / " + this.lifeSpan, x,y);
