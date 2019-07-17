@@ -498,15 +498,55 @@ class Mouse {
         }
 
         if (this.selected) {
-            
             this.displayDetails();
         } else {
             noStroke();    
         }  
-        fill(mouseColor).      
-        circle(this.pos.x, this.pos.y, this.size);
+        fill(mouseColor);
+        //circle(this.pos.x, this.pos.y, this.size);
+        this.drawBody(mouseColor);
 
    }
+
+   drawBody(mouseColor) {
+
+    push();
+
+    fill(mouseColor);
+    translate(this.pos.x,this.pos.y);
+
+    var x1 = 0;
+    var y1 = this.size;
+
+    var x2 = this.size /1.4;
+    var y2 = -this.size;
+
+    var x3 = -this.size /1.4;
+    var y3 = -this.size;
+
+    
+    if (this.speed.x!=0) {
+        var alpha = -Math.sign(this.speed.x)* PI/2;
+        alpha = alpha - Math.atan(-this.speed.y/this.speed.x);
+        rotate(alpha);
+    }
+
+    triangle(x1,y1,x2,y2,x3,y3);
+
+    fill(color(255,255,255));
+    stroke(mouseColor);
+
+    var xe2 = this.size /4  + (this.size /1.4)*0.15;
+    var ye =  - this.size * (0.15/2);
+    circle(xe2,ye,this.size /4);
+    
+    var xe3 = -this.size /4  - (this.size /1.4)*0.15;
+    circle(xe3,ye,this.size /4);
+
+    pop();
+
+   }
+
 
    displayDetails() {
 
@@ -514,7 +554,7 @@ class Mouse {
         var y = this.pos.y;
 
         stroke("#999999");
-        fill(color(225,225,225)).
+        fill(color(225,225,225))
         rect(x, y, 100, 200);
 
         x+=5;
@@ -548,7 +588,7 @@ class Mouse {
         }
 
         stroke('red');
-        line(this.pos.x, this.pos.y, this.pos.x + 5*this.speed.x, this.pos.y + 5*this.speed.y);
+        line(this.pos.x, this.pos.y, this.pos.x + 10*this.speed.x, this.pos.y + 10*this.speed.y);
 
 
 

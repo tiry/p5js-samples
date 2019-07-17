@@ -21,7 +21,7 @@ function setup (){
     createCanvas(space.w, space.h);
 
     frameRate(DEFAULT_FR);
-    angleMode(DEGREES);
+    angleMode(RADIANS);
 
 
 
