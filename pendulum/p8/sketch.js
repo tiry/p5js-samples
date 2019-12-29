@@ -84,7 +84,8 @@ var lx=undefined;
 var ly=undefined;
 
 function setup() {
-  createCanvas(w, h);
+  var cv =createCanvas(w, h);
+  cv.parent("holder");
   frameRate(fr);
   p1 = new Pendule(5,PI/4,200, 20, color(255,0.0));
   p2 = new Pendule(8,PI/5,250, 15, color(255,0.0));

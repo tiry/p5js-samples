@@ -80,7 +80,8 @@ class Pendule {
 var p;
 
 function setup() {
-  createCanvas(w, h);
+  var cv =createCanvas(w, h);
+  cv.parent("holder");
   frameRate(fr);
   p = new Pendule(5, PI / 3, 230, 20, color(0, 255, 0));
 }
@@ -101,7 +102,7 @@ function mouseClicked() {
     // pause?
     p.paused = !p.paused;
   }
-  return false;
+  return true;
 }
 
 function mouseDragged(event) {

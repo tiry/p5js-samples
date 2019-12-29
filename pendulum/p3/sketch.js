@@ -19,7 +19,8 @@ var friction = 0.002;
 var g = 9.8;
 
 function setup() {
-  createCanvas(w, h);
+  var cv =createCanvas(w, h);
+  cv.parent("holder");
   frameRate(fr);
   tetha=PI/5;
 }

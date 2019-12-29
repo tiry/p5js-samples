@@ -68,7 +68,8 @@ class Pendule {
 var pendulums=[];
 
 function setup() {
-  createCanvas(w, h);
+  var cv =createCanvas(w, h);
+  cv.parent("holder");
   frameRate(fr);
   pendulums.push(new Pendule(5, PI / 3, 150, 20, color(0, 255, 0)));
   pendulums.push(new Pendule(8, PI / 5, 250, 15, color(0, 0, 255)));

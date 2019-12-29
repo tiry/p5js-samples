@@ -12,7 +12,8 @@ var tetha=0;
 var angle=0;
 
 function setup() {
-  createCanvas(w, h);
+  var cv =createCanvas(w, h);
+  cv.parent("holder");
   frameRate(fr);
   tetha = PI/4;
 }
