@@ -2,32 +2,40 @@
     <script src="p5.js"></script>
     <link rel="stylesheet" type="text/css" href="style.css">
     <meta charset="utf-8">
-
   </head>
   <body>
 
     <table>
       <tr>
-          <td id="holder"></td>
+          <td id="holder" style="border-width:1px;border-style:solid;border-color:#888888"></td>
           <td>
-
               <ul>
-                  <li><A href="../p0/index.html">P0</A></li>
-                  <li><A href="../p1/index.html">P1</A></li>
-                  <li><A href="../p2/index.html">P2</A></li>
-                  <li><A href="../p3/index.html">P3</A></li>
-                  <li><A href="../p4/index.html">P4</A></li>
-                  <li><A href="../p5/index.html">P5</A></li>
-                  <li><A href="../p6/index.html">P6</A></li>
-                  <li><A href="../p7/index.html">P7</A></li>
-                  <li><A href="../p8/index.html">P8</A></li>
-            
+                  <li><A class="navLink" href="../p0/index.html">P0: Static pendulum</A></li>
+                  <li><A class="navLink" href="../p1/index.html">P1: Linear Animation</A></li>
+                  <li><A class="navLink" href="../p2/index.html">P2: Sinusoid Animation</A></li>
+                  <li><A class="navLink" href="../p3/index.html">P3: Newton Law Animation</A></li>
+                  <li><A class="navLink" href="../p4/index.html">P4: Object encapsulation</A></li>
+                  <li><A class="navLink" href="../p5/index.html">P5: Object + Plot angle</A></li>
+                  <li><A class="navLink" href="../p6/index.html">P6: Multiple Instance</A></li>
+                  <li><A class="navLink" href="../p7/index.html">P7: Zoom on Newton Law</A></li>
+                  <li><A class="navLink" href="../p8/index.html">P8: Plot 3D pendulum position</A></li>            
                 </ul>            
-
-
           </td>
       </tr>
+      <tr><td id="stepTitle" style="text-align: center;font-size: 1.5em;"></td></tr>
     </table>
+    <script>
+      // basic DOM navigation
+      var links = document.getElementsByClassName("navLink");
+      for (var i = 0; i < links.length ;i++)
+      {
+          if (window.location.href.indexOf(links[i].href) >= 0) {
+            links[i].style.color='#CCCCCC';          
+            document.getElementById("stepTitle").innerHTML= links[i].innerHTML;
+            exit;
+          }
+      }
+    </script>
     <script src="sketch.js"></script>
 
 </body></html>
