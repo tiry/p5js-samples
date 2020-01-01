@@ -1,36 +1,15 @@
 
-var MAX_SPEED=5;
-var MIN_SPEED=1;
-
-var MAX_SIZE=10;
-var MIN_SIZE=4;
-
-var MAX_AGE=200;
-var MIN_AGE=80;
-
-var MAX_MATURITY=20;
-var MIN_MATURITY=10;
-
-var MAX_REPRO=70;
-var MIN_REPRO=40;
-
-var LIFE_COST = 0.01;
-
-var MAX_GESTATION=20;
-var MIN_GESTATION=5;
-
-var GESTATION = 8;
-
-var MAX_NRJ=10000;
-var MIN_NRJ=5000;
-
 var MAX_POPULATION=1000;
 var MAX_FOOD=1000;
+
 
 var RECYCLING_RATIO=4;
 var FOOD_GROWTH = 0.01;
 
+
 var TIME_INC = 0.1;
+
+var LIFE_COST = 0.01;
 
 var TRACKING_RATIO = 0.25;
 
@@ -138,36 +117,6 @@ class Space {
     }
 }
 
-class DNA {
-
-    constructor(father, mother) {            
-
-        if (father != undefined && mother != undefined) {
-            this.speed = Math.round((father.speed + mother.speed)/2);
-            this.size = Math.round((father.size + mother.size)/2);
-            this.lifeSpan = Math.round((father.lifeSpan + mother.lifeSpan)/2);
-            this.maturity = Math.round((father.maturity + mother.maturity)/2);
-            this.gestation = Math.round((father.gestation + mother.gestation)/2);
-            this.reproductionBoost = Math.round((father.reproductionBoost + mother.reproductionBoost)/2);
-            this.startEnergy = Math.round((father.startEnergy + mother.startEnergy)/2);
-            this.generation = Math.max(father.generation, mother.generation)+1;
-        } else {
-            this.speed = Math.round(MIN_SPEED + Math.random() * (MAX_SPEED- MIN_SPEED));
-            this.size = Math.round(MIN_SIZE + Math.random() * (MAX_SIZE- MIN_SIZE));
-            this.lifeSpan = Math.round(MIN_AGE + Math.random() * (MAX_AGE- MIN_AGE));
-            this.startEnergy = Math.round(MIN_NRJ + Math.random() * (MAX_NRJ- MIN_NRJ));
-            this.maturity = Math.round(MIN_MATURITY + Math.random() * (MAX_MATURITY- MIN_MATURITY));
-            this.gestation = Math.round(MIN_GESTATION + Math.random() * (MAX_GESTATION- MIN_GESTATION));
-            this.reproductionBoost = Math.round(MIN_REPRO + Math.random() * (MAX_REPRO- MIN_REPRO));
-            this.generation = 1;        
-        }
-
-    }
-
-    summary() {
-
-    }
-}
 
 
 var mousePolulation=0;

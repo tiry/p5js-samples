@@ -1,181 +1,221 @@
-function Snake(startx,starty, speed) {
 
-  this.x =startx;
-  this.y =starty
-  this.dead=false;
-  this.tail=[];  
+// constants
+var X_MAX = 1000;
+var Y_MAX=800;
+var GRID_STEPS = 10;
+var FOOD_COUNT = 50;
 
-  this.speed=speed;
-  this.dirX=1;
-  this.dirY=0;  
+// global variables
+var segments = [];
+var startButton;
 
-  this.growPoints=0;
-  this.nbMeal=0;
+var alphaStep=5;
+var alphaValue=0;
+var alphaBreak=45;
 
-  this.move = function() {
+var zoomCentrerX;
+var zoomCentrerY;
 
-    if (this.dead) {
-      return false;
-    }
-    
-    this.x+=this.dirX * this.speed;
-    this.y+=this.dirY * this.speed;
+var drawMediatrice = false;
 
-    this.updateTail();
-    this.grow();
+var zoomLevel=1;
 
-    if (this.checkDie()) {
-      this.dead=true;
-    }
+function computeEdge(segment, alpha) {
 
-    this.checkBorders();
-    this.eatIfPossible();
-    
-    return true;
-  }
-  
-  this.position = function() {
-    return { x: this.x, y: this.y}
-  }
+   var midX = (segment.x1 + segment.x2)/2.0;
+   var midY = (segment.y1 + segment.y2)/2.0;
 
-  this.updateTail = function() {
-    if (this.tail.length>0) {
-      this.tail.pop();
-      this.tail.unshift(this.position());
-    }          
-    //this.extendTail();
-  }
+   // distance between edge and central point
+   var d = Math.sqrt(Math.pow((segment.x1-midX),2) + Math.pow((segment.y1-midY),2));
 
-  this.extendTail = function() {
+   // tan(alpha) = h/d
+   // h^2 = d^2 * tan(alpha)^2  = R
+   var rad = alpha * Math.PI/180;
+   var R = Math.pow(d,2) * Math.pow(Math.tan(rad),2); 
+   
+   // if aligned on X axis
+   if (segment.y2-segment.y1==0) {    
+      return {x:midX, y:midY - Math.sqrt(R)};
+   }
+   // mediatrice : y = ax+b
+   var a = (segment.x1-segment.x2+0.0)/(segment.y2-segment.y1);
+   var b = (Math.pow(segment.x2,2)-Math.pow(segment.x1,2) + Math.pow(segment.y2,2)-Math.pow(segment.y1,2))/(2*(segment.y2-segment.y1));
 
-   var newTail = [];   
-   var lastPosition = this.tail[0];
-   newTail.push(this.tail[0]);
-   for (i = 1; i < this.tail.length; i++) {
-       var deltaX = this.tail[i].x-lastPosition.x;
-       var deltaY = this.tail[i].y-lastPosition.y;
-       if (deltaX>0 && deltaY>0) {
-        console.log("ERROR");
-       }
-       var threshold =  1.1*GRID_STEPS; 
-       var delta = Math.max(Math.abs(deltaX), Math.abs(deltaY));
-       if (delta>threshold && delta < 4*threshold) {
-           var nbPoints = Math.floor(Math.abs(deltaX/GRID_STEPS+ deltaY/GRID_STEPS)) +1;
-         //console.log("expand " + nbPoints + " points " + (deltaX/(nbPoints+1.0)) + " " + deltaY/(nbPoints+1.0));
-           for (j = 1; j <= nbPoints ; j++) {
-               newTail.push( {x : lastPosition.x + Math.floor(j*deltaX/(nbPoints+1.0)),
-                                        y : lastPosition.y + Math.floor(j*deltaY/(nbPoints+1.0)),
-                                        padding : true});                 
-           }
-       }
-       lastPosition = this.tail[i];
-       newTail.push(this.tail[i]);
+  if (drawMediatrice) {
+    stroke(0,255,0);
+    var previous = {x: 0, y: b};
+    for (var i = 0; i < 1000; i=i+20) {
+      var newPoint = {x: i, y: a*i+b};
+      if (previous.x) {
+        line(previous.x, previous.y, newPoint.x,newPoint.y);
       }
-   this.tail = newTail; 
-   //console.log(this.tail.length);   
-  }
-
-  this.checkDie = function() {
-    for (i = 3; i < this.tail.length; i++) {
-      if (this.isCloseTo(this.tail[i].x, this.tail[i].y)) {
-        return true;
-      }
+      previous = newPoint;
     }
-    return false;  
   }
+ 
+   // h^2 = R = (midX-x)^2 + (midY-y)^2
+   var f = (R - Math.pow(midX,2) -Math.pow((b - midY),2)) / (1+Math.pow(a,2));
+   f = f + (Math.pow((a*(b-midY)-midX),2))/ (Math.pow((1+Math.pow(a,2)),2));
 
-  this.grow = function() {
-    if (this.growPoints>0) {
-      this.growPoints--;
-      this.tail.unshift(this.position());
-    }    
-  }
+   var g = (a*(b-midY) - midX)/(1+Math.pow(a,2));
 
-  this.checkBorders = function() {
-    if (this.x>X_MAX) {
-      this.x = 0;
-    }
-    if (this.y > Y_MAX) {
-      this.y = 0;
-    }
-    if (this.x <0) {
-      this.x=X_MAX;
-    }
-    if (this.y <0) {
-      this.y=Y_MAX;
-    }    
-  }
+   var sign=1;
+/*   if (segment.x1 > segment.x2) {
+      sign=-sign;
+   }*/
+   if (segment.y1 > segment.y2) {
+      sign=-sign;
+   }
+   
+   var x = sign*Math.sqrt(f)-g;
 
-  this.changeDirection = function (x,y) {
-    this.dirX =x;
-    this.dirY =y;    
-  }
+   var y = a*x + b;
 
-  this.eatIfPossible = function () {
-    var foodIndex = this.findFoodToEat();
-      // eat the food that was found
-      if (foodIndex > 0) {
-       food[foodIndex].used=true;
-       this.nbMeal++;
-       this.growPoints=food[foodIndex].boost;
-       if (this.nbMeal%5==0) {
-        this.speed=this.speed*(1+this.growPoints/10);
-      }
-      return true;      
-    }
-    return false;
-  }
-
-  this.isCloseTo = function (x,y) {
-   var dx = Math.abs(this.x-x);
-   var dy = Math.abs(this.y-y);
-   if (dx < GRID_STEPS && dy < GRID_STEPS) {
-    return true;
-  }
-  return false;
+   return {x:x, y:y};
 }
 
-  //return the index of the first food that is close enough to be eaten
-  this.findFoodToEat = function() {
-    for (var i = 0; i < food.length; i++) {
-     if (!food[i].used) {
-       if (this.isCloseTo(food[i].x, food[i].y)) {
-         return i;                  
-       }
+function mkSegment(x1,y1,x2,y2) {
+  return {
+    x1: x1,
+    y1:y1,
+    x2: x2,
+    y2:y2,    
+  }
+}
+
+function setup() {
+
+ createCanvas(X_MAX,Y_MAX);
+ frameRate(5);
+
+ var cx=X_MAX/2;
+ var cy=Y_MAX/2+50;
+
+ zoomCentrerX=cx;
+ zoomCentrerY=cy;
+
+ var R = 200;
+ var steps = 8;
+
+ for (var i = 0; i <steps; i++) {
+
+     var rad =  i*(2*Math.PI/steps);
+
+     var x1 = R*Math.cos(rad);
+     var y1 = R*Math.sin(rad);
+
+     rad =  (i+1)*(2*Math.PI/steps);
+
+     var x2 = R*Math.cos(rad);
+     var y2 = R*Math.sin(rad);
+
+     segments.push(mkSegment(cx+x1,cy+y1,cx+x2,cy+y2));
+ } 
+
+// segments.push(mkSegment(cx-100,cy-100,cx-100,cy+100));
+ //segments.push(mkSegment(cx-100,cy+100,cx+100,cy+100));
+ //segments.push(mkSegment(cx+100,cy+100, cx+100,cy-100));
+ //segments.push(mkSegment(cx+100,cy-100, cx-100,cy-100));
+
+}
+
+function pX(x) {  
+   var amp = X_MAX/zoomLevel;   
+   var minX = zoomCentrerX-amp/2;
+   return (x-minX)*zoomLevel;
+}
+function pY(y) {  
+   var amp = Y_MAX/zoomLevel;   
+   var minY = zoomCentrerY-amp/2;
+   return (y-minY)*zoomLevel;
+}
+
+function isVisible(segment) {
+
+   var ampX = X_MAX/zoomLevel;   
+  
+   if ((segment.x1> zoomCentrerX+ampX/2) || (segment.x1< zoomCentrerX-ampX/2)) {
+      return false;
+   }
+   if ((segment.x2> zoomCentrerX+ampX/2) || (segment.x2< zoomCentrerX-ampX/2)) {
+      return false;
+   }
+   var ampY = Y_MAX/zoomLevel;   
+
+   if ((segment.y1> zoomCentrerY+ampY/2) || (segment.y1< zoomCentrerY-ampY/2)) {
+      return false;
+   }
+   if ((segment.y2> zoomCentrerY+ampY/2) || (segment.y2< zoomCentrerY-ampY/2)) {
+      return false;
+   }
+
+   return true;
+}
+
+function draw() {
+
+  background(255,255,255);
+
+  stroke(0,0,0);
+
+//  alphaValue+=alphaStep;
+  var newSegments=[];
+
+  for (var i =0; i < segments.length; i++) {
+    if (isVisible(segments[i])) {
+      line(pX(segments[i].x1),pY(segments[i].y1),pX(segments[i].x2),pY(segments[i].y2));
+    }
+  }
+
+  if (alphaValue>0) {
+    for (var i =0; i < segments.length; i++) {
+      if (isVisible(segments[i])) {
+        var edge = computeEdge(segments[i], alphaValue);
+        newSegments.push(mkSegment(segments[i].x1, segments[i].y1, edge.x, edge.y));
+        newSegments.push(mkSegment(edge.x, edge.y,segments[i].x2, segments[i].y2));          
+      }
+    }
+
+ //    console.log(newSegments);
+
+    stroke(255,0,0);
+
+    for (var i =0; i < newSegments.length; i++) {
+      line(pX(newSegments[i].x1),pY(newSegments[i].y1),pX(newSegments[i].x2),pY(newSegments[i].y2));
+    }
+
+     if (alphaValue>=alphaBreak) {
+        segments = newSegments;
+        alphaValue = 0;
      }
-   }  
-   return -1;
- }
+   }
+}
 
- this.draw = function() {
 
-  fill(color(255,0,0));
-  noStroke();      
-    // draw tail
-    this.drawTail();
-    // draw head
-    fill(color(255,0,0));
-    rect(this.x,this.y,GRID_STEPS,GRID_STEPS);  
-  }
-
-  this.drawTail = function() {
-    var lastPoint;
-    for (var i = 0; i < this.tail.length; i++) {
-      if (lastPoint) {
-        stroke(128);
-        //fill(color(128,128,128));
-        line(lastPoint.x,lastPoint.y, this.tail[i].x, this.tail[i].y);
-      }
-      var idxColor = 50 +(150/this.tail.length)*i;
-      fill(color(255,idxColor,idxColor));
-      if (this.tail[i]) {
-        if (this.tail[i].padding) {
-            fill(color(128,128,128));
-        }
-        rect(this.tail[i].x,this.tail[i].y,GRID_STEPS,GRID_STEPS);
-      }
-      lastPoint = this.tail[i];
-    }    
-  }
-
+function keyPressed() {
+ if (keyCode === LEFT_ARROW) {
+    if (keyIsDown(SHIFT)) {
+      zoomCentrerX-=10;
+    } else {
+        zoomLevel-=0.1  
+    }
+} else if (keyCode === RIGHT_ARROW) {
+    if (keyIsDown(SHIFT)) {
+      zoomCentrerX+=10;
+    } else {
+      zoomLevel+=0.1;
+    }
+} else if (keyCode === UP_ARROW) {
+    if (keyIsDown(SHIFT)) {
+      zoomCentrerY-=10;
+    } else {
+       alphaValue+=alphaStep;  
+    }
+} else if (keyCode === DOWN_ARROW) {
+    if (keyIsDown(SHIFT)) {
+       zoomCentrerY+=10;
+    } else {
+       alphaValue-=alphaStep;  
+    }
+}
 }
