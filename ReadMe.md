@@ -21,6 +21,6 @@ A few p5.js samples code that were written for kids:
     - [Pendulum](https://tiry.github.io/p5js-samples/pendulum/) step by step example
     - [Dummy Physic engine](https://tiry.github.io/p5js-samples/phy/index.html)
     - [Mouse life](https://tiry.github.io/p5js-samples/mouselife/index.html)
-    - [Planetary Systems](https://tiry.github.io/p5js-samples/planet-system/index.html)
+    - [Planetary Systems](https://tiry.github.io/p5js-samples/planet-system/)
 
 
