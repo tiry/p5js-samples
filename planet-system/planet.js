@@ -1,3 +1,5 @@
+var TAIL_SIZE=50;
+
 class Planet {
 
     constructor(size) {
@@ -94,9 +96,9 @@ class Planet {
       let depl = p5.Vector.mult(this.v,dt/200);
       this.pos.add(depl);
   
-      if (frameCount % 5==0) {
+      if (frameCount % 8==0) {
         this.tail.push(this.pos.copy());
-        if (this.tail.length>50) {
+        if (this.tail.length>TAIL_SIZE) {
           this.tail.shift();
         }  
         this._checkOutOfScreen();
@@ -104,8 +106,9 @@ class Planet {
     }
 
     _checkOutOfScreen() {
-        if ((Math.abs(this.pos.x) > 5*w) || (Math.abs(this.pos.y) > 5*h)) {
-            //console.log("Planet " + this.id + " is away");
+
+        if (this.pos.dist(planets[0].pos)>5*Math.max(w,h)) {
+            console.log("Planet " + this.id + " is away");
             //console.log("Planets alive: " + planets.length);
             this.dead=true;
         }

@@ -19,6 +19,7 @@ var maxSize = 50;
 var pauseBtn;
 var paused = false;
 var autoFrameEnabled=true;
+var mouseMode = null;
 
 var speedBtn;
 var displaySpeed=false;
@@ -124,8 +125,6 @@ function updateAndDrawPlanets() {
 
 function autoFrame(force) {
 
-  translate(cx,cy);  
-
   if (autoFrameEnabled || force) {
     computeTargetZoom();
     if (zoom < targetZoom-2*zoomStep) {
@@ -133,9 +132,22 @@ function autoFrame(force) {
     } else if (zoom > targetZoom +2*zoomStep) {
       zoom -= zoomStep;
     }
+    if (cx < targetCx - 5) {
+      cx+=1;
+    } else if (cx > targetCx + 5) {
+      cx-=1;
+    }
+    if (cy < targetCy - 5) {
+      cy+=1;
+    } else if (cy > targetCy + 5) {
+      cy-=1;
+    }
   }
 
-  scale(zoom,zoom);
+  resetMatrix();
+  scale(zoom);
+  translate(w/2/zoom-cx,h/2/zoom-cy);  
+  
 
 }
 
@@ -145,9 +157,11 @@ function draw() {
   
   autoFrame();
   updateAndDrawPlanets();
+
+  //fill(color('rgb(255,0,0)'));
+  //circle(cx,cy,100);
 }
 
-var mouseMode = null;
 
 function togglePause() {
   paused=!paused;
@@ -178,22 +192,36 @@ function toggleSpeedVector() {
 }
 
 function computeTargetZoom() {
-  var maxX =0;
-  var maxY =0;
+
+  var maxX = planets[0].pos.x;
+  var maxY = planets[0].pos.y;
+  var minX = planets[0].pos.x;;
+  var minY = planets[0].pos.y;;
 
   for (var i=0; i < planets.length; i++) {    
-      if (Math.abs(planets[i].pos.x)>maxX) {
-        maxX = Math.abs(planets[i].pos.x);
+      if (planets[i].pos.x>maxX) {
+        maxX = planets[i].pos.x;
       }
-      if (Math.abs(planets[i].pos.y)>maxY) {
-        maxY = Math.abs(planets[i].pos.y);
+      if (planets[i].pos.y>maxY) {
+        maxY = planets[i].pos.y;
       }
-  }
+      if (planets[i].pos.x<minX) {
+        minX = planets[i].pos.x;
+      }
+      if (planets[i].pos.y<minY) {
+        minY = planets[i].pos.y;
+      }
+    }
   
-  var zx = (w/2)/(maxX*1.1);
-  var zy = (h/2)/(maxY*1.1);
+  var zx = (w)/(maxX*1.1-minX*1.1);
+  var zy = (h)/(maxY*1.1-minY*1.1);
   var z = Math.min(zx,zy);
+
   targetZoom=Math.round(z * 100) / 100;
+
+  targetCx =  + Math.round((maxX+minX)/2);
+  targetCy =  + Math.round((maxY+minY)/2);
+
 }
 
 function mouseReleased(event) {
@@ -205,14 +233,13 @@ function mouseDragged(event){
     cx += event.movementX;
     cy += event.movementY;
   } else if (mouseMode == "ZOOM") {
-    console.log("zoom + " + event.movementY/10.0);
+    //console.log("zoom + " + event.movementY/10.0);
     zoom += Math.sign(event.movementY)*0.01;
   }
 
 }
 
-function mousePressed(event) {
-  console.log("pressed " + mouseButton);
+function mousePressed(event) {  
   if (mouseButton==LEFT) {
     if (keyIsDown(CONTROL)) {
       mouseMode = "ZOOM";
