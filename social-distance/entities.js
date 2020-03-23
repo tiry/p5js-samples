@@ -181,7 +181,6 @@ class Person {
   constructor(home, age) {
     this.age = age;
     this.home = home;
-    this.pos = createVector(home.tile.center.x, home.tile.center.y);
     this.currentLocation = home;
     this.departureTime=0;
     this.moving=false;
@@ -266,10 +265,8 @@ class Person {
       var f = frameCount - this.departureTime;
       var step = Math.floor(f/fr);
       if (step < this.path.length) {
-        this.pos = createVector(this.path[step].x, this.path[step].y);
-        getTile(this.pos.x, this.pos.y).travelers.push(this);
+        getTile(this.path[step].x, this.path[step].y).travelers.push(this);
       } else {
-        //this.pos = this.destinationBuilding.tile.center;        
         this.setLocation(this.destinationBuilding);
         this.destinationBuilding=null;
         this.moving=false;

@@ -16,8 +16,6 @@ var paused = false;
 var autoFrameEnabled=true;
 var mouseMode = null;
 
-
-
 function setup() {
   var cv =createCanvas(w, h);
   cv.parent("holder");
@@ -82,12 +80,11 @@ function initCityLayout() {
           b.idx = idx;
           t.deploy(b);
         }        
-
       }
     }
   }
 
-  while(people.length<1) {
+  while(people.length<20) {
     var idx = Math.floor(Math.random()*buildings.length);
     if (buildings[idx].type==BType.HOUSE) {
       var nb = 1+ Math.random()*2;
@@ -127,25 +124,6 @@ function draw() {
   translate(w/2/zoom-cx,h/2/zoom-cy);    
 
   drawCity();
-
-  if (startT) {
-    fill(color(0,255,0));
-    circle((startT.center.x+0.5)*tiles.tileWidth, (startT.center.y+0.5)*tiles.tileWidth, 10);
-  }
-  if (endT) {
-    fill(color(255,0,0));
-    circle((endT.center.x+0.5)*tiles.tileWidth , (endT.center.y+0.5)*tiles.tileWidth, 10);
-  }
-  if (startT && endT) {
-    var p = new Person(startT, 10);
-    var path = p.computePath(endT);
-    for (var i = 0; i < path.length; i++) {
-      fill(color(255,0,255));
-      circle((path[i].x+0.5)*tiles.tileWidth , (path[i].y+0.5)*tiles.tileWidth, 10);
-  
-    }
-  }
-
 }
 
 function togglePause() {
@@ -169,18 +147,11 @@ function mouseDragged(event){
     //console.log("zoom + " + event.movementY/10.0);
     zoom += Math.sign(event.movementY)*0.01;
   }
-
 }
 
 function mousePressed(event) {  
   if (mouseButton==LEFT) {
-    if (keyIsDown(83)) {
-      startT = findTile(mouseX, mouseY);
-    }
-    else if (keyIsDown(69)) {
-      endT = findTile(mouseX, mouseY);
-    }
-    else if (keyIsDown(CONTROL)) {
+    if (keyIsDown(CONTROL)) {
       mouseMode = "ZOOM";
     } else {
       mouseMode = "MOVE";
@@ -189,5 +160,4 @@ function mousePressed(event) {
   else if (mouseButton==RIGHT) {
     mouseMode = "ZOOM";
   }
-
 }
