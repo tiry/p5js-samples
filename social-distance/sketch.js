@@ -1,7 +1,7 @@
 
 // canevas configuration
-var h=600;
-var w=1200;
+var h=620;
+var w=1280;
 var fr=20; // framerate
 
 var cx = w/2;
@@ -39,7 +39,7 @@ function initCityLayout() {
   var roadX=8;
   var roadY=3;
 
-  initTileSet(tw, w/tw, h/tw);
+  initTileSet(tw, Math.floor(w/tw), Math.floor(h/tw));
 
   for (var i = 0; i <= tiles.WX; i++) {
     for (var j = 0; j <= tiles.WY; j++) {
@@ -86,9 +86,29 @@ function initCityLayout() {
       }
     }
   }
+
+  while(people.length<1) {
+    var idx = Math.floor(Math.random()*buildings.length);
+    if (buildings[idx].type==BType.HOUSE) {
+      var nb = 1+ Math.random()*2;
+      for (var i=0; i<nb; i++) {
+        var p = new Person(buildings[idx], 20);
+        var targetIdx= Math.floor(Math.random()*buildings.length);
+        p.setTarget(buildings[targetIdx]);
+      }      
+    }
+  }  
+
 }
 
 function drawCity() {
+
+  for (var t =0; t < tiles.length; t++) {
+    tiles[t].travelers=[];
+  }
+  for (var p =0; p < people.length; p++) {
+    people[p].update();
+  }
   for (var t =0; t < tiles.length; t++) {
     tiles[t].draw();
   }  
