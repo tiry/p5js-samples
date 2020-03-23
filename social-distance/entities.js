@@ -47,6 +47,7 @@ class Tile {
       this.children = [];
       this.selected = false;
       this.travelers = [];
+      this.travelersNext = [];
     }
 
     draw() {      
@@ -59,10 +60,10 @@ class Tile {
       if (this.children.length==0 || this.selected) {
         fill(color(220,220,220));
         square(this.center.x*this.width, this.center.y*this.width, this.width, 5);
-        for (var t=0; t < this.travelers.length; t++) {
-          fill(color(255,0,0))
-          circle(this.center.x*this.width+this.width/2, this.center.y*this.width+(t+1)*10, 10);
-        }
+        //for (var t=0; t < this.travelers.length; t++) {
+        //  fill(color(255,0,0))
+        //  circle(this.center.x*this.width+this.width/2, this.center.y*this.width+(t+1)*10, 10);
+        //}
 
       } else {
         fill(color(80,80,80));
@@ -86,7 +87,68 @@ class Tile {
       this.selected=!this.selected;
     }
 
-  
+    resetTravelers() {
+      this.travelers = [];
+      this.travelersNext = [];
+    }
+
+    positionTraverlers() {
+      this._dispath(this.travelers, true);
+      this._dispath(this.travelersNext, false);
+    }
+
+    _dispath(crowd, start) {
+      var lines = computeLayout(crowd.length);
+      var idx = 0;
+      var dy = Math.floor(tiles.tileWidth/(lines.length+1));
+      var dx = 0;
+
+      var y = this.center.y*this.width;
+      var x = 0;
+
+      for (var l=0; l < lines.length; l++) {
+        y += dy;
+        dx = Math.floor(tiles.tileWidth/(lines[l]+1));
+        x=this.center.x*this.width;        
+        for (var i=0; i < lines[l]; i++) {
+          x+=dx;
+          crowd[idx].setPosition(x,y,start);
+          idx++;
+        }
+      }
+    }
+}
+
+function computeLayout(n) {
+  if (n==0) {
+    return [];
+  }
+  var x = 1;
+  var y = 1;
+  var i = 0;
+  while( x*y < n) {
+    i++;
+    if (i%2==0) {
+      x++;
+    } else {
+      y++;
+    }
+  }
+  var slots = x*y;
+  var lines = [];
+  for (var l=0; l < y; l++) {
+    lines.push(x);
+  }
+  i=1;
+  while (slots > n) {
+    lines[i]-=1;
+    i = (i +2) % lines.length;
+    slots=0;
+    for (var l=0; l < lines.length; l++) {
+      slots+=lines[l];
+    }
+  }
+  return lines;
 }
 
 //**************************
@@ -263,13 +325,20 @@ class Person {
   update() {
     if (this.moving) {
       var f = frameCount - this.departureTime;
-      var step = Math.floor(f/fr);
-      if (step < this.path.length) {
-        getTile(this.path[step].x, this.path[step].y).travelers.push(this);
-      } else {
-        this.setLocation(this.destinationBuilding);
-        this.destinationBuilding=null;
-        this.moving=false;
+      if (this.startPos == null || f%fr==0) {
+        var step = Math.floor(f/fr);
+        if (step < this.path.length) {
+          getTile(this.path[step].x, this.path[step].y).travelers.push(this);
+          if (step+1 < this.path.length) {
+            getTile(this.path[step+1].x, this.path[step+1].y).travelersNext.push(this);
+          } else {
+            this.destinationBuilding.tile.travelersNext.push(this);
+          }
+        } else {
+          this.setLocation(this.destinationBuilding);
+          this.destinationBuilding=null;
+          this.moving=false;
+        }
       }
     }
   }
@@ -283,6 +352,50 @@ class Person {
 
   }
 
+  setPosition(x,y,start) {
+    if (start) {
+      this.startPos = {x: x, y: y};
+    } else {
+      this.endPos = {x: x, y: y};
+    }
+  }
+
+  
+
+  draw() {
+    var interpolate = true;
+
+    if (!this.moving) {
+      return;
+    }
+
+    fill(color(255,0,0));
+    if (!interpolate) {
+      circle(this.startPos.x, this.startPos.y, 10);
+      if (this.endPos) {
+        fill(color(255,255,0));
+        circle(this.endPos.x, this.endPos.y, 10);
+      }
+    }
+    else {
+      var f = (frameCount - this.departureTime)%fr;
+
+      var x = (1-f/fr)*this.startPos.x;
+      var y = (1-f/fr)*this.startPos.y;
+
+      if (this.endPos) {
+        x += (f/fr)*this.endPos.x;
+        y += (f/fr)*this.endPos.y;          
+      } else {
+        x += (f/fr)*this.destinationBuilding.tile.center.x;
+        y += (f/fr)*this.destinationBuilding.tile.center.y;  
+      }
+      circle(x, y, 10);
+    }
+    
+  
+    //circle(this.startPos.x, this.startPos.y, 10);
+  }
 
 }
 

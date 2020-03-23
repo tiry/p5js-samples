@@ -84,7 +84,7 @@ function initCityLayout() {
     }
   }
 
-  while(people.length<20) {
+  while(people.length<40) {
     var idx = Math.floor(Math.random()*buildings.length);
     if (buildings[idx].type==BType.HOUSE) {
       var nb = 1+ Math.random()*2;
@@ -101,14 +101,20 @@ function initCityLayout() {
 function drawCity() {
 
   for (var t =0; t < tiles.length; t++) {
-    tiles[t].travelers=[];
+    tiles[t].resetTravelers();
   }
   for (var p =0; p < people.length; p++) {
     people[p].update();
   }
   for (var t =0; t < tiles.length; t++) {
     tiles[t].draw();
+    tiles[t].positionTraverlers();
   }  
+
+  for (var p =0; p < people.length; p++) {
+    people[p].draw();
+  }  
+
 }
 
 
