@@ -226,7 +226,7 @@ class Building {
     if (this.people.length>0) {
       for (var i = 0; i< this.people.length; i++) {
         if (!this.people[i].moving) {
-          fill(color(255,0,0))
+          fill(this.people[i].getColor())
           circle(x+bwidth/2, y+(i+1)*10, 10);
         }
       }
@@ -250,8 +250,26 @@ class Person {
     people.push(this);
     home.people.push(this);
     this.speedFactor=1.5;
+
+    this._assignWork();
+    this.schedule = new Schedule(this);
   }
 
+  _assignWork() {
+    this.work=null;
+    if (this.age >= 65) {
+      if (Math.random()>0.5) return;
+    }    
+    while(!this.work) {
+      var i = Math.floor(Math.random()*(buildings.length-1));
+      var b = buildings[i];
+      if (this.age < 20 && b.type==BType.SCHOOL) {
+        this.work=b;
+      } else if (this.age >= 20 && (b.type==BType.SHOP || b.type==BType.COMPANY)) {
+        this.work=b;
+      } 
+    }
+  }
   _findExit(cx,cy) {
     // find exit;
     if (cy-1>=0 && getTile(cx,cy-1).isEmpty()) {
@@ -345,6 +363,14 @@ class Person {
           this.moving=false;
         }
       }
+    } else {      
+        if (frameCount%(this._speed())==0) {
+          var target = this.schedule.getTargetLocation();
+          if (!(target===this.currentLocation)) {
+            this.setTarget(target);
+            this.update();
+          }
+        }
     }
   }
 
@@ -364,13 +390,24 @@ class Person {
     }
   }
 
+  getColor() {
+    if (this.age < 20) {
+      return color(0,200,200);
+    } else if (this.age < 65) {
+      return color(0,0,200);
+    } else {
+      return color(0,0,130);
+    }  
+  }
+
   draw() {
     var interpolate = true;
     if (!this.moving) {
       return;
     }
 
-    fill(color(255,0,0));
+    fill(this.getColor());
+    
     if (!interpolate) {
       circle(this.startPos.x, this.startPos.y, 10);
       if (this.endPos) {

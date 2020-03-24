@@ -29,6 +29,7 @@ function setup() {
   // init Tiles
   initCityLayout();
 
+  initPopulation();
 }
 
 function initCityLayout() {
@@ -84,14 +85,19 @@ function initCityLayout() {
     }
   }
 
+
+}
+
+function initPopulation() {
+
   while(people.length<100) {
     var idx = Math.floor(Math.random()*buildings.length);
     if (buildings[idx].type==BType.HOUSE) {
       var nb = 1+ Math.random()*2;
       for (var i=0; i<nb; i++) {
-        var p = new Person(buildings[idx], 20);
-        var targetIdx= Math.floor(Math.random()*buildings.length);
-        p.setTarget(buildings[targetIdx]);
+        var p = new Person(buildings[idx], 10 + Math.floor(Math.random()*80));
+        //var targetIdx= Math.floor(Math.random()*buildings.length);
+        //p.setTarget(buildings[targetIdx]);
       }      
     }
   }  
