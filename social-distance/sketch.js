@@ -84,7 +84,7 @@ function initCityLayout() {
     }
   }
 
-  while(people.length<40) {
+  while(people.length<100) {
     var idx = Math.floor(Math.random()*buildings.length);
     if (buildings[idx].type==BType.HOUSE) {
       var nb = 1+ Math.random()*2;

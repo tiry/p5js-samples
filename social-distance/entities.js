@@ -249,6 +249,7 @@ class Person {
 
     people.push(this);
     home.people.push(this);
+    this.speedFactor=1.5;
   }
 
   _findExit(cx,cy) {
@@ -322,11 +323,15 @@ class Person {
     this.moving=true;
   }
 
+  _speed() {
+    return Math.floor(fr/this.speedFactor);
+  }
+
   update() {
     if (this.moving) {
       var f = frameCount - this.departureTime;
-      if (this.startPos == null || f%fr==0) {
-        var step = Math.floor(f/fr);
+      if (this.startPos == null || f%(this._speed())==0) {
+        var step = Math.floor(f/(this._speed()));
         if (step < this.path.length) {
           getTile(this.path[step].x, this.path[step].y).travelers.push(this);
           if (step+1 < this.path.length) {
@@ -349,7 +354,6 @@ class Person {
       this.currentLocation = building;
       building.people.push(this);
     }    
-
   }
 
   setPosition(x,y,start) {
@@ -360,11 +364,8 @@ class Person {
     }
   }
 
-  
-
   draw() {
     var interpolate = true;
-
     if (!this.moving) {
       return;
     }
@@ -378,23 +379,21 @@ class Person {
       }
     }
     else {
-      var f = (frameCount - this.departureTime)%fr;
+      var s = this._speed();
+      var f = (frameCount - this.departureTime)%s;
 
-      var x = (1-f/fr)*this.startPos.x;
-      var y = (1-f/fr)*this.startPos.y;
+      var x = (1-f/s)*this.startPos.x;
+      var y = (1-f/s)*this.startPos.y;
 
       if (this.endPos) {
-        x += (f/fr)*this.endPos.x;
-        y += (f/fr)*this.endPos.y;          
+        x += (f/s)*this.endPos.x;
+        y += (f/s)*this.endPos.y;          
       } else {
-        x += (f/fr)*this.destinationBuilding.tile.center.x;
-        y += (f/fr)*this.destinationBuilding.tile.center.y;  
+        x += (f/s)*this.destinationBuilding.tile.center.x;
+        y += (f/s)*this.destinationBuilding.tile.center.y;  
       }
       circle(x, y, 10);
     }
-    
-  
-    //circle(this.startPos.x, this.startPos.y, 10);
   }
 
 }
