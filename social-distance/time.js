@@ -12,6 +12,18 @@ function now() {
 
 }
 
+function findInNeighborhood(person, type, range) {
+    var candidates = person.home.tile.getNeighborhood(range);
+    for (var i = 0; i < candidates.length; i++ ) {
+        for (var j = 0; j < candidates[i].children.length; j++ ) {
+            if (candidates[i].children[j].type==type) {
+                return candidates[i].children[j];
+            }
+        }
+    }
+    return null;
+}
+
 class Schedule {
 
     constructor(person) {
@@ -38,14 +50,33 @@ class Schedule {
     }
 
     _initChildScheldule() {        
-        for (var i = 0; i < 6; i++) {
-            this.slots[1+i] = this.owner.work;
+        var d = Math.round(Math.random()*1.9);     
+        for (var i = 0; i < 5+d; i++) {
+            this.slots[d+i] = this.owner.work;
         }
     }
 
-    _initAdultScheldule() {        
-        for (var i = 0; i < 6; i++) {
-            this.slots[1+i] = this.owner.work;
+    _initAdultScheldule() {   
+        var d = Math.round(Math.random()*1.6);     
+        var endWork = 7+d;
+        for (var i = 0; i < endWork; i++) {
+            this.slots[i+d] = this.owner.work;
+        }
+
+        if (Math.random()<0.5) {
+            var shop = findInNeighborhood(this.owner, BType.SHOP, 2);
+            if (shop!=null) {
+                this.slots[endWork+2]=shop;
+                this.slots[endWork+3]=shop;
+            }
+        }
+        else if (Math.random()<0.4) {
+            var venue = findInNeighborhood(this.owner, BType.VENUE, 4);
+            if (venue!=null) {
+                this.slots[endWork+3]=venue
+                this.slots[endWork+4]=venue;
+                this.slots[endWork+5]=venue;
+            }
         }
     }
 

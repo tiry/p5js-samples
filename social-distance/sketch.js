@@ -46,33 +46,36 @@ function initCityLayout() {
       if (i%roadX!=0 && j%roadY!=0) {
         var p = Math.random()*100;
 
-        //  70 => houses
-        //  13 => shops
-        //  10 => company
+        //  55 => houses
+        //  10 => shops
+        //  15 => company
         //  05 => schools
         //  02 => hospital
+        //  03 => venue
+        //  10 => restaurant
 
         var btype=BType.HOUSE;
         var n = 1;
-        if (p < 70) {
-          // house
+        if (p < 55) {
           btype=BType.HOUSE;
-          n=1+ Math.round(Math.random()*2);
-        } else if (p < 83) {
-          // shop
+          n=1+ Math.round(Math.random()*1.6);
+        } else if (p < 65) {
           btype=BType.SHOP;
           n=1+ Math.round(Math.random()*1);
-        } else if (p < 93) {
-          // company
+        } else if (p < 80) {
           btype=BType.COMPANY;
           n=1+ Math.round(Math.random()*1);
-        } else if (p < 98) {
-          // schools
+        } else if (p < 85) {
           btype=BType.SCHOOL;
           n=1;
-        } else if (p <= 100) {
-          // hospital
+        } else if (p < 87) {
           btype=BType.HOSPITAL;
+          n=1;
+        } else if (p < 90) {
+          btype=BType.VENUE;
+          n=1;
+        } else if (p <= 100) {
+          btype=BType.RESTAURANT;
           n=1;
         }
 
@@ -90,17 +93,27 @@ function initCityLayout() {
 
 function initPopulation() {
 
-  while(people.length<100) {
-    var idx = Math.floor(Math.random()*buildings.length);
+  for (var idx=0; idx < buildings.length; idx++) {
     if (buildings[idx].type==BType.HOUSE) {
-      var nb = 1+ Math.random()*2;
+
+      //children
+      var nb = Math.round(Math.random()*2.6);
       for (var i=0; i<nb; i++) {
-        var p = new Person(buildings[idx], 10 + Math.floor(Math.random()*80));
-        //var targetIdx= Math.floor(Math.random()*buildings.length);
-        //p.setTarget(buildings[targetIdx]);
-      }      
+        var p = new Person(buildings[idx], 5 + Math.floor(Math.random()*25));
+      }
+      //parents
+      nb = Math.round(1+ Math.random()*1.4);
+      for (var i=0; i<nb; i++) {
+        var p = new Person(buildings[idx], 20 + Math.floor(Math.random()*45));
+      }
+      //gd parents
+      nb = Math.round(Math.random()*1.55);
+      for (var i=0; i<nb; i++) {
+        var p = new Person(buildings[idx], 20 + Math.floor(Math.random()*45));
+      }
+
     }
-  }  
+  }
 
 }
 

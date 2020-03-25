@@ -54,20 +54,14 @@ class Tile {
       if (this.selected) {
         strokeWeight(2)
         stroke(color(255,0,0));
-      } else {
+      } else {        
         stroke(color(0,0,0));
       }
       if (this.children.length==0 || this.selected) {
         fill(color(220,220,220));
-        square(this.center.x*this.width, this.center.y*this.width, this.width, 5);
-        //for (var t=0; t < this.travelers.length; t++) {
-        //  fill(color(255,0,0))
-        //  circle(this.center.x*this.width+this.width/2, this.center.y*this.width+(t+1)*10, 10);
-        //}
-
+        strokeWeight(0)
+        square(this.center.x*this.width, this.center.y*this.width, this.width, 0);
       } else {
-        fill(color(80,80,80));
-        square(this.center.x*this.width, this.center.y*this.width, this.width, 5);
         for (var c=0; c < this.children.length; c++) {
           this.children[c].draw();
         }
@@ -117,6 +111,24 @@ class Tile {
         }
       }
     }
+
+    getNeighborhood(radius) {
+      var neighborhood=[];
+      var cx = this.center.x;
+      var cy = this.center.y;
+      for (var r=1; r <=radius; r++) {
+
+        for (var x=cx-r+1; x <=cx+r-1; x++) {
+          try {neighborhood.push(getTile(x,cy+r))} catch(e){};
+          try {neighborhood.push(getTile(x,cy-r))} catch(e){};
+        } 
+        for (var y=cy-r; y <=cy+r; y++) {
+          try {neighborhood.push(getTile(cx-r,y))} catch(e){};
+          try {neighborhood.push(getTile(cx+r,y))} catch(e){};
+        }
+      }
+      return neighborhood;
+    }
 }
 
 function computeLayout(n) {
@@ -159,7 +171,9 @@ const BType =  {
   SCHOOL: 'school',
   SHOP: 'shop',
   COMPANY: 'compamny',
-  HOSPITAL: 'hospital'
+  HOSPITAL: 'hospital',
+  VENUE: 'venue',
+  RESTAURANT: 'restaurant'
 }
 
 class Building {
@@ -195,8 +209,15 @@ class Building {
         amplitude=200;
       case BType.HOSPITAL:
         base = 10;
-        amplitude=100;      
+        amplitude=300;      
+      case BType.VENUE:
+        base = 10;
+        amplitude=200;      
+      case BType.RESTAURANT:
+        base = 2;
+        amplitude=20;           
     }
+
     return  base+ Math.round(Math.random()*amplitude);
   }
 
@@ -204,15 +225,19 @@ class Building {
 
     switch(this.type){
       case BType.HOUSE:
-        return color(100,200,50)
+        return color(160,82,45)
       case BType.SCHOOL:
-        return color(200,200,0)
+        return color(204, 191, 92)
       case BType.SHOP:
-        return color(0,200,200)
+        return color(70, 138, 137)
       case BType.COMPANY:
-        return color(0,0,200)
+        return color(124, 130, 118)
       case BType.HOSPITAL:
-        return color(200,0,0)
+        return color(230, 232, 227)
+      case BType.VENUE:
+        return color(207, 158, 230)
+      case BType.RESTAURANT: 
+        return color(212, 167, 116) 
     }
   }
 
@@ -235,19 +260,12 @@ class Building {
         for (var j = 0; j < l; j++) {
           if (!this.people[idx].moving) {
             fill(this.people[idx].getColor())
-            circle(x+(j+1)*dx, ly, 10);
+            circle(x+(j+1)*dx, ly, this.people[idx].size);
           }
           idx++;
         }
         ly+=dy;
       }
-
-/**       for (var i = 0; i< this.people.length; i++) {
-        if (!this.people[i].moving) {
-          fill(this.people[i].getColor())
-          circle(x+bwidth/2, y+(i+1)*10, 10);
-        }
-      }*/
     }
 
   }
@@ -255,6 +273,8 @@ class Building {
 }
 
 //**************************
+
+var PEOPLE_BASE_SPEED = 1;
 
 class Person {
 
@@ -267,10 +287,16 @@ class Person {
 
     people.push(this);
     home.people.push(this);
-    this.speedFactor=0.3;
+    this.speedFactor=PEOPLE_BASE_SPEED *(2 - age/100); 
 
     this._assignWork();
     this.schedule = new Schedule(this);
+    
+    this.size = 8;
+    if (age < 14) {
+      this.size = this.size*0.8;
+    }
+
   }
 
   _assignWork() {
@@ -428,29 +454,20 @@ class Person {
 
     fill(this.getColor());
     
-    if (!interpolate) {
-      circle(this.startPos.x, this.startPos.y, 10);
-      if (this.endPos) {
-        fill(color(255,255,0));
-        circle(this.endPos.x, this.endPos.y, 10);
-      }
-    }
-    else {
-      var s = this._speed();
-      var f = (frameCount - this.departureTime)%s;
+    var s = this._speed();
+    var f = (frameCount - this.departureTime)%s;
 
-      var x = (1-f/s)*this.startPos.x;
-      var y = (1-f/s)*this.startPos.y;
+    var x = (1-f/s)*this.startPos.x;
+    var y = (1-f/s)*this.startPos.y;
 
-      if (this.endPos) {
-        x += (f/s)*this.endPos.x;
-        y += (f/s)*this.endPos.y;          
-      } else {
-        x += (f/s)*this.destinationBuilding.tile.center.x;
-        y += (f/s)*this.destinationBuilding.tile.center.y;  
-      }
-      circle(x, y, 10);
+    if (this.endPos) {
+      x += (f/s)*this.endPos.x;
+      y += (f/s)*this.endPos.y;          
+    } else {
+      x += (f/s)*this.destinationBuilding.tile.center.x;
+      y += (f/s)*this.destinationBuilding.tile.center.y;  
     }
+    circle(x, y, this.size);
   }
 
 }
