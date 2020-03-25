@@ -224,12 +224,30 @@ class Building {
     rect(x, y, bwidth, this.tile.width,5);
 
     if (this.people.length>0) {
-      for (var i = 0; i< this.people.length; i++) {
+
+      var lines = computeLayout(this.people.length);
+      var idx=0;
+      var dy = this.tile.width/(lines.length+1);
+      var ly = y+dy;  
+      for (var i = 0; i < lines.length; i++) {
+        var l = lines[i];
+        var dx = bwidth/(l+1);
+        for (var j = 0; j < l; j++) {
+          if (!this.people[idx].moving) {
+            fill(this.people[idx].getColor())
+            circle(x+(j+1)*dx, ly, 10);
+          }
+          idx++;
+        }
+        ly+=dy;
+      }
+
+/**       for (var i = 0; i< this.people.length; i++) {
         if (!this.people[i].moving) {
           fill(this.people[i].getColor())
           circle(x+bwidth/2, y+(i+1)*10, 10);
         }
-      }
+      }*/
     }
 
   }
@@ -249,7 +267,7 @@ class Person {
 
     people.push(this);
     home.people.push(this);
-    this.speedFactor=1.5;
+    this.speedFactor=0.3;
 
     this._assignWork();
     this.schedule = new Schedule(this);
@@ -320,7 +338,9 @@ class Person {
     var cx = this.currentLocation.tile.center.x;
     var cy = this.currentLocation.tile.center.y;
 
-    // find exit;
+    path.push({x: cx, y: cy});
+
+    // find exit;    
     var start = this._findExit(cx,cy);
     path.push(start);
     
