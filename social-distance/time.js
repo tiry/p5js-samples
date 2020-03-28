@@ -8,7 +8,7 @@ function now() {
     var h = Math.floor(m/60);
     var d =  Math.floor(h/NB_H_PER_DAYS) % 7 +1;
 
-    return { h: (m%NB_H_PER_DAYS), d:d}
+    return { h: (m%NB_H_PER_DAYS), d:d, t:m}
 
 }
 

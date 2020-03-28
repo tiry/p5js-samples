@@ -6,8 +6,6 @@ tiles.WY=20;
 
 var buildings=[];
 
-var people=[];
-
 function getTile(x,y) {  
   var idx = x*(tiles.WY+1)+y;
   var t=tiles[idx];
@@ -43,7 +41,10 @@ class Tile {
     constructor(center,width) {
       this.center = center;
       this.width = width;
+
+      this._id = tiles.length;
       tiles.push(this);
+
       this.children = [];
       this.selected = false;
       this.travelers = [];
@@ -106,7 +107,7 @@ class Tile {
         x=this.center.x*this.width;        
         for (var i=0; i < lines[l]; i++) {
           x+=dx;
-          crowd[idx].setPosition(x,y,start);
+          crowd[idx].setTrajectory(x,y,start);
           idx++;
         }
       }
@@ -180,7 +181,10 @@ class Building {
 
   constructor(tile, type) {
     this.tile = tile;
+    
+    this._id = buildings.length;
     buildings.push(this);
+
     tile.children.push(this);
     this.people=[];    
     this.type=type;
@@ -268,206 +272,6 @@ class Building {
       }
     }
 
-  }
-
-}
-
-//**************************
-
-var PEOPLE_BASE_SPEED = 1;
-
-class Person {
-
-  constructor(home, age) {
-    this.age = age;
-    this.home = home;
-    this.currentLocation = home;
-    this.departureTime=0;
-    this.moving=false;
-
-    people.push(this);
-    home.people.push(this);
-    this.speedFactor=PEOPLE_BASE_SPEED *(2 - age/100); 
-
-    this._assignWork();
-    this.schedule = new Schedule(this);
-    
-    this.size = 8;
-    if (age < 14) {
-      this.size = this.size*0.8;
-    }
-
-  }
-
-  _assignWork() {
-    this.work=null;
-    if (this.age >= 65) {
-      if (Math.random()>0.5) return;
-    }    
-    while(!this.work) {
-      var i = Math.floor(Math.random()*(buildings.length-1));
-      var b = buildings[i];
-      if (this.age < 20 && b.type==BType.SCHOOL) {
-        this.work=b;
-      } else if (this.age >= 20 && (b.type==BType.SHOP || b.type==BType.COMPANY)) {
-        this.work=b;
-      } 
-    }
-  }
-  _findExit(cx,cy) {
-    // find exit;
-    if (cy-1>=0 && getTile(cx,cy-1).isEmpty()) {
-      return {x: cx, y: cy-1};
-    }
-    else if (cy+1<= tiles.WY && getTile(cx,cy+1).isEmpty()) {
-      return {x: cx, y: cy+1};
-    }
-    throw "can not find exit from tile " + cx + ',' + cy;
-  }
-
-  _walk(start, end, path) {
-    var cx = start.x;
-    var cy = start.y;
-
-    if (cy-end.y==0) {
-      var dx = end.x - cx;      
-      for (var i = 1; i <= Math.abs(dx); i++) {
-        path.push({x: (cx + i*dx/Math.abs(dx)), y: cy});
-      }
-      return;
-    }
-
-    var dy = Math.sign(end.y-cy);
-
-    // first move to the first vertical road
-    var dx = Math.sign(end.x-cx);
-    if (dx==0) {
-      dx=1;
-    }
-    do {
-      cx +=dx;
-      path.push({x: cx, y: cy});
-    } while (!getTile(cx, cy+dy).isEmpty())
-
-    // then move vertically
-    do {
-      cy +=dy;
-      path.push({x: cx, y: cy});
-    } while (cy != end.y)
-
-    return this._walk({x: cx, y: cy}, end, path);
-  }
-
-  computePath(dest) {
-    var path = [];
-
-    var cx = this.currentLocation.tile.center.x;
-    var cy = this.currentLocation.tile.center.y;
-
-    path.push({x: cx, y: cy});
-
-    // find exit;    
-    var start = this._findExit(cx,cy);
-    path.push(start);
-    
-    // find entry point;
-    var end = this._findExit(dest.center.x,dest.center.y);    
-
-    this._walk(start, end, path);
-    path.push(end);
-
-    return path;
-  }
-
-  setTarget(destinationBuilding) {
-    this.departureTime=frameCount;
-    this.destinationBuilding = destinationBuilding;
-    var dest = destinationBuilding.tile;
-    this.path = this.computePath(dest);
-    this.moving=true;
-  }
-
-  _speed() {
-    return Math.floor(fr/this.speedFactor);
-  }
-
-  update() {
-    if (this.moving) {
-      var f = frameCount - this.departureTime;
-      if (this.startPos == null || f%(this._speed())==0) {
-        var step = Math.floor(f/(this._speed()));
-        if (step < this.path.length) {
-          getTile(this.path[step].x, this.path[step].y).travelers.push(this);
-          if (step+1 < this.path.length) {
-            getTile(this.path[step+1].x, this.path[step+1].y).travelersNext.push(this);
-          } else {
-            this.destinationBuilding.tile.travelersNext.push(this);
-          }
-        } else {
-          this.setLocation(this.destinationBuilding);
-          this.destinationBuilding=null;
-          this.moving=false;
-        }
-      }
-    } else {      
-        if (frameCount%(this._speed())==0) {
-          var target = this.schedule.getTargetLocation();
-          if (!(target===this.currentLocation)) {
-            this.setTarget(target);
-            this.update();
-          }
-        }
-    }
-  }
-
-  setLocation(building) {
-    if (this.currentLocation) {
-      this.currentLocation.people = this.currentLocation.people.filter(function (v, i, a){return !v===this});
-      this.currentLocation = building;
-      building.people.push(this);
-    }    
-  }
-
-  setPosition(x,y,start) {
-    if (start) {
-      this.startPos = {x: x, y: y};
-    } else {
-      this.endPos = {x: x, y: y};
-    }
-  }
-
-  getColor() {
-    if (this.age < 20) {
-      return color(0,200,200);
-    } else if (this.age < 65) {
-      return color(0,0,200);
-    } else {
-      return color(0,0,130);
-    }  
-  }
-
-  draw() {
-    var interpolate = true;
-    if (!this.moving) {
-      return;
-    }
-
-    fill(this.getColor());
-    
-    var s = this._speed();
-    var f = (frameCount - this.departureTime)%s;
-
-    var x = (1-f/s)*this.startPos.x;
-    var y = (1-f/s)*this.startPos.y;
-
-    if (this.endPos) {
-      x += (f/s)*this.endPos.x;
-      y += (f/s)*this.endPos.y;          
-    } else {
-      x += (f/s)*this.destinationBuilding.tile.center.x;
-      y += (f/s)*this.destinationBuilding.tile.center.y;  
-    }
-    circle(x, y, this.size);
   }
 
 }
