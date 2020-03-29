@@ -34,7 +34,6 @@ class Person {
 
     // I am not sick for now!
     this.virus=null;
-    this.dead=false;
 
     // init move tracking structures
     this.departureTime=0;
@@ -58,6 +57,11 @@ class Person {
 
   isRecovered() {
     if (this.virus) return this.virus.isRecovered();
+    return false;
+  }
+
+  isDead() {
+    if (this.virus) return this.virus.isDead();
     return false;
   }
 
@@ -167,7 +171,11 @@ class Person {
   update() {
     
     // no walking dead here!
-    if (this.dead) return;
+    if (this.isDead()) {
+      this.currentLocation=this.home;
+      this.moving=false;
+      return;
+    } 
 
     if (this.isInfectious()) {
       this._spread();
@@ -292,7 +300,7 @@ class Person {
   _spread() {
     if (frameCount%(fr*1)==0) {
       this._updateFollower();      
-      var potentialVictims = this._getLongTermNeighbors(5);
+      var potentialVictims = this._getLongTermNeighbors(3);
       if (potentialVictims.length>0) {
         var idx = Math.round(Math.random() * (potentialVictims.length-1));
         var victim = potentialVictims[idx];
@@ -326,7 +334,7 @@ class Person {
 
   // get my current color
   getColor() {
-    if (this.dead) {
+    if (this.isDead()) {
       return color(20,20,20);
     }
     if (this.isSick()) {

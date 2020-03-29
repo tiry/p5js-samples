@@ -22,5 +22,6 @@ A few p5.js samples code that were written for kids:
     - [Dummy Physic engine](https://tiry.github.io/p5js-samples/phy/index.html)
     - [Mouse life](https://tiry.github.io/p5js-samples/mouselife/index.html)
     - [Planetary Systems](https://tiry.github.io/p5js-samples/planet-system/)
+    - [Social Distance](https://tiry.github.io/p5js-samples/social-distance/)
 
 

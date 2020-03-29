@@ -28,7 +28,7 @@ var VStats = function() {
           } else {
             r.infected++;
             if (p.isInfectious()) {
-              r.infected+=1;
+              r.infectious+=1;
             }
             if (p.isSick()) {
               r.sick+=1;
@@ -77,6 +77,9 @@ class Virus {
 
         // define if host will die
         this.kill = Math.random() < this.getFatalityRate(age);
+        if (this.kill) {
+            console.log("Fatlity!!!");
+        }
         
         // counter for lifespan inside host
         this.start = now().t;
@@ -95,8 +98,6 @@ class Virus {
     getFatalityRate(age) {
         if (age>85) {
             return 0.25;
-        } else if (age>75) {
-            return 0.10;
         } else if (age>75) {
             return 0.10;
         } else if (age>65) {
@@ -137,9 +138,18 @@ class Virus {
     // lifecycle: has host recovered
     isRecovered() {
       var d = this.getDuration();
-      if ((d >= (this.steps[0]+this.steps[1]+this.steps[2]))) {
+      if (d >= (this.steps[0]+this.steps[1]+this.steps[2])) {
           return ! this.kill;
       }
     }
+
+    isDead() {
+        var d = this.getDuration();
+        if (d >= (this.steps[0]+this.steps[1]+this.steps[2])) {
+            return this.kill;
+        }
+    }
+  
+
 
 }
