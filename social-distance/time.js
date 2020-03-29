@@ -43,7 +43,7 @@ class Schedule {
         this.slots = [];
         this.owner = person;        
         this.currentDay=0;
-        this.decal=Math.round(Math.random()*10*fr);
+        this.decal=Math.round(Math.random()*5*fr);
     }
 
     _initIfNeeded() {
@@ -64,7 +64,7 @@ class Schedule {
     }
 
     _initChildScheldule() {        
-        var d = Math.round(Math.random()*1.9);     
+        var d = Math.round(Math.random()*2.9);     
         for (var i = 0; i < 5+d; i++) {
             this.slots[d+i] = this.owner.work;
         }

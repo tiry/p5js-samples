@@ -52,8 +52,10 @@ function initPandemic(nbInitialCases) {
 
     while (infected < nbInitialCases) {
         var target = Math.floor(Math.random()*people.length);
-        new Virus(people[target]);
-        infected++;
+        if (!target.virus) {
+            new Virus(people[target]);
+            infected++;
+        }
     }
 
 }
@@ -81,7 +83,7 @@ class Virus {
             console.log("Fatlity!!!");
         }
         
-        this.decal = Math.round(Math.random()*10*fr);
+        this.decal = Math.round(Math.random()*5*fr);
 
         // counter for lifespan inside host
         this.start = now().d;

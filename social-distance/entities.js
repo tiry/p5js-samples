@@ -186,7 +186,7 @@ class Building {
     buildings.push(this);
 
     tile.children.push(this);
-    this.people=[];    
+    this._people=[];    
     this.type=type;
     this.capacity=this._computeCapacity();   
     this.idx=0;     
@@ -245,6 +245,18 @@ class Building {
     }
   }
 
+  enter(p) {
+    this._people.push(p);
+  }
+
+  leave(p) {
+    this._people = this._people.filter(function (v, i, a){return v._id!=p._id});
+  }
+
+  getPeople() {
+    return this._people;
+  }
+
   draw() {
     fill(this._getColor());
     var bwidth = 2*this.tile.width/this.tile.children.length;
@@ -252,9 +264,9 @@ class Building {
     var y = this.tile.center.y*this.tile.width;
     rect(x, y, bwidth, this.tile.width,5);
 
-    if (this.people.length>0) {
-
-      var lines = computeLayout(this.people.length);
+    if (this._people.length>0) {
+      
+      var lines = computeLayout(this._people.length);
       var idx=0;
       var dy = this.tile.width/(lines.length+1);
       var ly = y+dy;  
@@ -262,9 +274,9 @@ class Building {
         var l = lines[i];
         var dx = bwidth/(l+1);
         for (var j = 0; j < l; j++) {
-          if (!this.people[idx].moving) {
-            fill(this.people[idx].getColor())
-            circle(x+(j+1)*dx, ly, this.people[idx].size);
+          if (!this._people[idx].moving) {
+            fill(this._people[idx].getColor())
+            circle(x+(j+1)*dx, ly, this._people[idx].size);
           }
           idx++;
         }

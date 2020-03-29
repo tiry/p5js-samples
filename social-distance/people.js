@@ -2,7 +2,7 @@
 
 var people=[];
 
-var PEOPLE_BASE_SPEED = 1;
+var PEOPLE_BASE_SPEED = 2.5;
 
 class Person {
 
@@ -12,7 +12,7 @@ class Person {
     
     // attach to home
     this.home = home;      
-    home.people.push(this);
+    home.enter(this);
 
     // start at home
     this.currentLocation = home;
@@ -157,13 +157,14 @@ class Person {
     var dest = destinationBuilding.tile;
     this.path = this.computePath(dest);
     this.moving=true;
+    this.leaveCurrentLocation();
   }
 
   // get current speed
   _speed() {
     var s = Math.floor(fr/this.speedFactor);
     if (this.isSick()) {
-      s=s*0.6;
+      s=Math.floor(s*0.6);
     }
     return s;
   }
@@ -192,7 +193,7 @@ class Person {
 
     if (this.moving) {
       var f = now().t - this.departureTime;
-      if (this.startPos == null || f%(this._speed())==0) {
+      if (this.startPos == null || f%(this._speed())==0) {      
         var step = Math.floor(f/(this._speed()));
         if (step < this.path.length) {
           var curTile = getTile(this.path[step].x, this.path[step].y);
@@ -275,7 +276,7 @@ class Person {
     var l = [];
     if (!this.moving) {
       // find people in the same building      
-      var t = this.currentLocation.people;
+      var t = this.currentLocation.getPeople();
       for (var i = 0; i < t.length; i++) {
         var p = t[i];
         if (p._id != this._id) {
@@ -323,13 +324,17 @@ class Person {
     }
   }
 
+  leaveCurrentLocation() {
+    if (this.currentLocation) {
+      this.currentLocation.leave(this);
+    }      
+    this.currentLocation=null;
+  }
+
   // set my current location
   setLocation(building) {
-    if (this.currentLocation) {
-      this.currentLocation.people = this.currentLocation.people.filter(function (v, i, a){return !v===this});
-      this.currentLocation = building;
-      building.people.push(this);
-    }    
+    this.currentLocation = building;
+    building.enter(this);
   }
 
   // define coordinate for current path segment

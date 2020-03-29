@@ -13,6 +13,9 @@ var zoomStep = 0.001;
 
 var pauseBtn;
 var paused = false;
+var displayStatsBtn;
+var showStats = true;
+
 var autoFrameEnabled=true;
 var mouseMode = null;
 
@@ -26,10 +29,15 @@ function setup() {
   pauseBtn.position(w +10, 5);
   pauseBtn.mousePressed(togglePause);
 
+  displayStatsBtn = createButton('Hide Stats');
+  displayStatsBtn.position(w +10, 30);
+  displayStatsBtn.mousePressed(toggleDisplayStats);
+
   // init Tiles
   initCityLayout();
 
-  initPopulation();
+  initPopulation(20);
+  //initDebugPopulation(10);
 }
 
 function initCityLayout() {
@@ -91,7 +99,26 @@ function initCityLayout() {
 
 }
 
-function initPopulation() {
+function initDebugSchoolPopulation(nb) {
+
+  var school;
+  while (!school) {
+    var b = Math.floor(Math.random()*buildings.length);
+    if (buildings[b].type==BType.SCHOOL) {
+      school=buildings[b];
+    }
+  }
+
+
+  while (people.length<nb) {
+    var b = Math.floor(Math.random()*buildings.length);
+    if (buildings[b].type==BType.HOUSE) {
+      new Person(buildings[b], 15).work=school;
+    }
+  }
+}
+
+function initPopulation(nbCases) {
 
   for (var idx=0; idx < buildings.length; idx++) {
     if (buildings[idx].type==BType.HOUSE) {
@@ -114,7 +141,7 @@ function initPopulation() {
     }
   }
 
-  initPandemic(400);
+  initPandemic(nbCases);
 }
 
 function drawCity() {
@@ -151,7 +178,17 @@ function draw() {
 
   drawCity();
 
-  displayStats();
+  if (showStats) displayStats();
+}
+
+
+function toggleDisplayStats() {
+  showStats=!showStats;
+  if (showStats) {
+    displayStatsBtn.elt.innerText="Hide Stats";
+  } else {
+    displayStatsBtn.elt.innerText="ShowStats";
+  }
 }
 
 
