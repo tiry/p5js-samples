@@ -169,6 +169,10 @@ class Person {
     // no walking dead here!
     if (this.dead) return;
 
+    if (this.isInfectious()) {
+      this._spread();
+    }
+
     if (this.moving) {
       var f = frameCount - this.departureTime;
       if (this.startPos == null || f%(this._speed())==0) {
@@ -202,6 +206,53 @@ class Person {
     }
   }
 
+  // get list of people that are around be for more than a given time
+  _getLongTermNeighbors(threshold) {
+    var p = [];
+
+    var keys = Object.keys(this.followers);
+    for (var i = 0; i < keys.length; i++) {
+      var key = keys[i];
+      if (this.followers[key]>=threshold) {
+        p.push(people[parseInt(key)]);
+      }
+    }
+    return p;
+  }
+
+  // update the list of people around be for some time
+  _updateFollower() {
+
+    var currentPeopleIds = this._getPeopleAroundMe();
+
+    // check who leaves the followship
+    var leaversId=[];
+    var keysToScan = Object.keys(this.followers);
+    for (var i = 0; i < keysToScan.length; i++) {
+      var keyId = parseInt(keysToScan[i]);
+      if (!currentPeopleIds.includes(keyId)) {
+        leaversId.push(""+keyId);        
+      }
+    }    
+
+    // remove leavers
+    for (var i = 0; i < leaversId.length; i++) {
+      var key = leaversId[i];
+      delete this.followers[key];
+    }
+
+    // update counters
+    for (var i = 0; i < currentPeopleIds.length; i++) {
+      var key = ""+currentPeopleIds[i];
+
+      if (this.followers[key]) {
+        this.followers[key]++;
+      } else {
+        this.followers[key]=1;
+      }
+    }
+  }
+
   // retrieves _id of people around me
   _getPeopleAroundMe() {
     var l = [];
@@ -214,32 +265,44 @@ class Person {
           l.push(p._id);
         }
       } 
-
     } else {
       // find people moving in the same tile      
       var t = this.movingPosition.curTile.travelers;
-      for (var i = 0; i < t.length; i++) {
-        var p = t[i];
-        if (p._id != this._id) {
-          l.push(p._id);
-        }
-      } 
+      if (t) {
+        for (var i = 0; i < t.length; i++) {
+          var p = t[i];
+          if (p._id != this._id) {
+            l.push(p._id);
+          }
+        } 
+      }
       t = this.movingPosition.nextTile.travelersNext;
-      for (var i = 0; i < t.length; i++) {
-        var p = t[i];
-        if (p._id != this._id) {
-          l.push(p._id);
-        }
-      }      
+      if (t) {
+        for (var i = 0; i < t.length; i++) {
+          var p = t[i];
+          if (p._id != this._id) {
+            l.push(p._id);
+          }
+        }      
+      }
     }
     return l;
   }
 
   _spread() {
-    if (frameCount%(fr*10)==0) {
-        // XXX
-        // gather close neighbors
-        // infect if present during several round
+    if (frameCount%(fr*1)==0) {
+      this._updateFollower();      
+      var potentialVictims = this._getLongTermNeighbors(5);
+      if (potentialVictims.length>0) {
+        var idx = Math.round(Math.random() * (potentialVictims.length-1));
+        var victim = potentialVictims[idx];
+        if (!victim){
+          console.log("WTF!");
+        }
+        if (!victim.virus) {
+          this.virus.infect(victim);
+        }
+      }
     }
   }
 

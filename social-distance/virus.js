@@ -1,6 +1,7 @@
 
 var VStats = function() {
 
+    // statistics computed by visiting population
     var r = {
       sain: 0,
       infected: 0,
@@ -43,19 +44,30 @@ var VStats = function() {
     r.r0=replicateCount/vCount;
 
     return r;
+}
+
+function initPandemic(nbInitialCases) {
+
+    var infected=0;
+
+    while (infected < nbInitialCases) {
+        var target = Math.floor(Math.random()*people.length);
+        new Virus(people[target]);
+        infected++;
+    }
 
 }
 
 class Virus {
   
     constructor(host) {
-        
+
+        host.virus = this;
+
         var age = host.age;
         
-        this.targetVictims = Math.round(r0*2*Math.random());
-
-        this.steps=[];
-        
+        // Virus lifecycle
+        this.steps=[];        
         // incubation
         this.steps.push(1 + Math.round(2*Math.random()));
         // infectiousNotSick
@@ -63,19 +75,23 @@ class Virus {
         // sickness
         this.steps.push(3 + Math.round(3*Math.random()*(1+age/100)));
 
+        // define if host will die
         this.kill = Math.random() < this.getFatalityRate(age);
         
-        this.days=0;
-
+        // counter for lifespan inside host
         this.start = now().t;
+
+        // counter for other hosts infected from current one
+        // used to compute the resulting R0
         this.replicats=0;
     }
 
     infect(otherHost) {
-        otherHost.virus = new Virus(otherHost.age);
+        new Virus(otherHost);
         this.replicats++;
     }
 
+    // return fatality rate based on age
     getFatalityRate(age) {
         if (age>85) {
             return 0.25;
@@ -95,10 +111,12 @@ class Virus {
         return 0;
     }
 
+    // return for how long current host was infected
     getDuration() {
-        (now().t-this.start)/NB_H_PER_DAYS;
+        return (now().t-this.start)/NB_H_PER_DAYS;
     }
 
+    // lifecycle: is host currently infectious
     isInfectious() {
         var d = this.getDuration();
         if ((d >= this.steps[0]) && (d < (this.steps[0]+this.steps[1]+this.steps[2]))) {
@@ -107,6 +125,7 @@ class Virus {
         return false;
     }
 
+    // lifecycle: is host currently sympthomatic
     isSick() {
         var d = this.getDuration();
         if ((d >= this.steps[0]+this.steps[1]) && (d < (this.steps[0]+this.steps[1]+this.steps[2]))) {
@@ -115,6 +134,7 @@ class Virus {
         return false;
     }
 
+    // lifecycle: has host recovered
     isRecovered() {
       var d = this.getDuration();
       if ((d >= (this.steps[0]+this.steps[1]+this.steps[2]))) {

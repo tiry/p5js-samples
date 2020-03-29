@@ -1,6 +1,6 @@
 
 var NB_H_PER_DAYS=18;
-var TIME_SCALE=5;
+var TIME_SCALE=2;
 
 function now() {
 

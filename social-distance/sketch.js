@@ -111,10 +111,10 @@ function initPopulation() {
       for (var i=0; i<nb; i++) {
         var p = new Person(buildings[idx], 20 + Math.floor(Math.random()*45));
       }
-
     }
   }
 
+  initPandemic(5);
 }
 
 function drawCity() {
