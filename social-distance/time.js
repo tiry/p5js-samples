@@ -9,14 +9,16 @@ function tick() {
     timeCounter++;
 }
 
-function now() {
+function now(decal) {
 
-    var m = Math.floor(timeCounter/(fr*TIME_SCALE));
-    var h = Math.floor(m/60);
-    var d =  Math.floor(m/NB_H_PER_DAYS);
+    if (!decal) {
+        decal=0;
+    }
+    var h = Math.floor((timeCounter+decal) /(fr*TIME_SCALE));
+    var d =  Math.floor(h/NB_H_PER_DAYS);
     var wd = d % 7 +1
 
-    return { h: (m%NB_H_PER_DAYS), d:d, weekDay:wd,  m:m, t:timeCounter}
+    return { h: (h%NB_H_PER_DAYS), d:d, weekDay:wd, t:timeCounter}
 }
 
 /******** Schedule Management ********/
@@ -41,6 +43,7 @@ class Schedule {
         this.slots = [];
         this.owner = person;        
         this.currentDay=0;
+        this.decal=Math.round(Math.random()*10*fr);
     }
 
     _initIfNeeded() {
@@ -93,7 +96,7 @@ class Schedule {
 
     getTargetLocation() {
         this._initIfNeeded();
-        return this.slots[now().h];
+        return this.slots[now(this.decal).h];
     }
 
 }

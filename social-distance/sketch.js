@@ -109,7 +109,7 @@ function initPopulation() {
       //gd parents
       nb = Math.round(Math.random()*1.55);
       for (var i=0; i<nb; i++) {
-        var p = new Person(buildings[idx], 20 + Math.floor(Math.random()*45));
+        var p = new Person(buildings[idx], 45 + Math.floor(Math.random()*55));
       }
     }
   }

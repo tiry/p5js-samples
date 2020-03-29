@@ -76,13 +76,15 @@ class Virus {
         this.steps.push(3 + Math.round(3*Math.random()*(1+age/100)));
 
         // define if host will die
-        this.kill = Math.random() < this.getFatalityRate(age);
+        this.kill = Math.random() < 1.5*this.getFatalityRate(age);
         if (this.kill) {
             console.log("Fatlity!!!");
         }
         
+        this.decal = Math.round(Math.random()*10*fr);
+
         // counter for lifespan inside host
-        this.start = now().m;
+        this.start = now().d;
 
         // counter for other hosts infected from current one
         // used to compute the resulting R0
@@ -114,7 +116,7 @@ class Virus {
 
     // return for how long current host was infected
     getDuration() {
-        return (now().m-this.start)/NB_H_PER_DAYS;
+        return (now(this.decal).d-this.start);
     }
 
     // lifecycle: is host currently infectious

@@ -177,7 +177,7 @@ class Person {
       this._interpolateCurrentPosition();
     }
   }
-  
+
   _update() {    
     // no walking dead here!
     if (this.isDead()) {
@@ -309,7 +309,7 @@ class Person {
   _spread() {
     if (now().t%(fr*1)==0) {
       this._updateFollower();      
-      var potentialVictims = this._getLongTermNeighbors(3);
+      var potentialVictims = this._getLongTermNeighbors(2);
       if (potentialVictims.length>0) {
         var idx = Math.round(Math.random() * (potentialVictims.length-1));
         var victim = potentialVictims[idx];
