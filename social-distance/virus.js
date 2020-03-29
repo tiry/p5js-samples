@@ -82,7 +82,7 @@ class Virus {
         }
         
         // counter for lifespan inside host
-        this.start = now().t;
+        this.start = now().m;
 
         // counter for other hosts infected from current one
         // used to compute the resulting R0
@@ -114,7 +114,7 @@ class Virus {
 
     // return for how long current host was infected
     getDuration() {
-        return (now().t-this.start)/NB_H_PER_DAYS;
+        return (now().m-this.start)/NB_H_PER_DAYS;
     }
 
     // lifecycle: is host currently infectious

@@ -1,16 +1,25 @@
+/******** Basic Time Counter ********/
 
 var NB_H_PER_DAYS=18;
 var TIME_SCALE=2;
 
+var timeCounter=0;
+
+function tick() {    
+    timeCounter++;
+}
+
 function now() {
 
-    var m = Math.floor(frameCount/(fr*TIME_SCALE));
+    var m = Math.floor(timeCounter/(fr*TIME_SCALE));
     var h = Math.floor(m/60);
-    var d =  Math.floor(m/NB_H_PER_DAYS) % 7 +1;
+    var d =  Math.floor(m/NB_H_PER_DAYS);
+    var wd = d % 7 +1
 
-    return { h: (m%NB_H_PER_DAYS), d:d, t:m}
-
+    return { h: (m%NB_H_PER_DAYS), d:d, weekDay:wd,  m:m, t:timeCounter}
 }
+
+/******** Schedule Management ********/
 
 function findInNeighborhood(person, type, range) {
     var candidates = person.home.tile.getNeighborhood(range);
@@ -24,6 +33,8 @@ function findInNeighborhood(person, type, range) {
     return null;
 }
 
+// Each individual is assigned a schedule 
+// that defines where to go during each time slots
 class Schedule {
 
     constructor(person) {
@@ -33,7 +44,7 @@ class Schedule {
     }
 
     _initIfNeeded() {
-        if (now().d==this.currentDay) {
+        if (now().weekDay==this.currentDay) {
             return;
         }
         this.slots = [];
@@ -46,7 +57,7 @@ class Schedule {
         } else if (this.owner.work!=null) {
             this._initAdultScheldule();
         }
-        this.currentDay=now().d;
+        this.currentDay=now().weekDay;
     }
 
     _initChildScheldule() {        

@@ -152,7 +152,7 @@ class Person {
 
   // set the destination and init the path to get there
   setTarget(destinationBuilding) {
-    this.departureTime=frameCount;
+    this.departureTime=now().t;
     this.destinationBuilding = destinationBuilding;
     var dest = destinationBuilding.tile;
     this.path = this.computePath(dest);
@@ -169,7 +169,16 @@ class Person {
   }
 
   update() {
-    
+    this._update();    
+  }
+
+  position() {
+    if (this.moving) {
+      this._interpolateCurrentPosition();
+    }
+  }
+  
+  _update() {    
     // no walking dead here!
     if (this.isDead()) {
       this.currentLocation=this.home;
@@ -182,7 +191,7 @@ class Person {
     }
 
     if (this.moving) {
-      var f = frameCount - this.departureTime;
+      var f = now().t - this.departureTime;
       if (this.startPos == null || f%(this._speed())==0) {
         var step = Math.floor(f/(this._speed()));
         if (step < this.path.length) {
@@ -204,11 +213,11 @@ class Person {
         }
       }
     } else {      
-        if (frameCount%(this._speed())==0) {
+        if (now().t%(this._speed())==0) {
           var target = this.schedule.getTargetLocation();
           if (!(target===this.currentLocation)) {
             this.setTarget(target);
-            this.update();
+            this._update();
           }
         }
     }
@@ -298,7 +307,7 @@ class Person {
   }
 
   _spread() {
-    if (frameCount%(fr*1)==0) {
+    if (now().t%(fr*1)==0) {
       this._updateFollower();      
       var potentialVictims = this._getLongTermNeighbors(3);
       if (potentialVictims.length>0) {
@@ -367,7 +376,7 @@ class Person {
       return;
     }
     var s = this._speed();
-    var f = (frameCount - this.departureTime)%s;
+    var f = (now().t - this.departureTime)%s;
 
     var x = (1-f/s)*this.startPos.x;
     var y = (1-f/s)*this.startPos.y;
@@ -389,9 +398,8 @@ class Person {
     if (!this.moving) {
       return;
     }
-    var cp = this.  _interpolateCurrentPosition();
     fill(this.getColor());    
-    circle(cp.x, cp.y, this.size);
+    circle(this.movingPosition.x, this.movingPosition.y, this.size);
   }
 
 }
