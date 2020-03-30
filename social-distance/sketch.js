@@ -16,6 +16,9 @@ var paused = false;
 var displayStatsBtn;
 var showStats = true;
 
+var displayLegendBtn;
+var showLegend = true;
+
 var autoFrameEnabled=true;
 var mouseMode = null;
 
@@ -32,6 +35,10 @@ function setup() {
   displayStatsBtn = createButton('Hide Stats');
   displayStatsBtn.position(w +10, 30);
   displayStatsBtn.mousePressed(toggleDisplayStats);
+
+  displayLegendBtn = createButton('Hide Legend');
+  displayLegendBtn.position(w +10, 55);
+  displayLegendBtn.mousePressed(toggleDisplayLegend);
 
   // init Tiles
   initCityLayout();
@@ -178,16 +185,27 @@ function draw() {
 
   drawCity();
 
+  resetMatrix();
+
   if (showStats) displayStats();
+  if (showLegend) displayBuildingLegend();
 }
 
+function toggleDisplayLegend() {
+  showLegend=!showLegend;
+  if (showLegend) {
+    displayLegendBtn.elt.innerText="Hide Legend";
+  } else {
+    displayLegendBtn.elt.innerText="Show Legend";
+  }
+}
 
 function toggleDisplayStats() {
   showStats=!showStats;
   if (showStats) {
     displayStatsBtn.elt.innerText="Hide Stats";
   } else {
-    displayStatsBtn.elt.innerText="ShowStats";
+    displayStatsBtn.elt.innerText="Show Stats";
   }
 }
 

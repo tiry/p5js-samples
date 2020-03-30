@@ -164,14 +164,15 @@ function computeLayout(n) {
   return lines;
 }
 
-//**************************
+//************************************************************************
+//************************************************************************
 
 const BType =  {
 
   HOUSE: 'house',
   SCHOOL: 'school',
   SHOP: 'shop',
-  COMPANY: 'compamny',
+  COMPANY: 'company',
   HOSPITAL: 'hospital',
   VENUE: 'venue',
   RESTAURANT: 'restaurant'
@@ -226,23 +227,7 @@ class Building {
   }
 
   _getColor() {
-
-    switch(this.type){
-      case BType.HOUSE:
-        return color(160,82,45)
-      case BType.SCHOOL:
-        return color(204, 191, 92)
-      case BType.SHOP:
-        return color(70, 138, 137)
-      case BType.COMPANY:
-        return color(124, 130, 118)
-      case BType.HOSPITAL:
-        return color(230, 232, 227)
-      case BType.VENUE:
-        return color(207, 158, 230)
-      case BType.RESTAURANT: 
-        return color(212, 167, 116) 
-    }
+    return getBuildingColor(this.type);
   }
 
   enter(p) {
@@ -288,5 +273,49 @@ class Building {
 
 }
 
+function getBuildingColor(type) {
+
+  switch(type){
+    case BType.HOUSE:
+      return color(160,82,45)
+    case BType.SCHOOL:
+      return color(204, 191, 92)
+    case BType.SHOP:
+      return color(70, 138, 137)
+    case BType.COMPANY:
+      return color(124, 130, 118)
+    case BType.HOSPITAL:
+      return color(230, 232, 227)
+    case BType.VENUE:
+      return color(207, 158, 230)
+    case BType.RESTAURANT: 
+      return color(212, 167, 116) 
+  }
+}
+
+function displayBuildingLegend() {
+
+  var keys = Object.keys(BType);
+
+  var x=w-100;
+  var y = h-150;
+
+  fill(color(255,255,255, 128));   
+  stroke(color(0,0,0));
+  rect(x-5, y-5, 100, 150);
+
+  for (var i = 0; i < keys.length; i++) {
+    var label = BType[keys[i]];
+    
+    var c = getBuildingColor(label);
+
+    fill(c);   
+    stroke(c);
+    rect(x, y+20*i, 30, 15);
+
+    text(label, x+35, y+20*i+10);  
+  }
+
+}
 
 

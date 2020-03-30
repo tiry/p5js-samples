@@ -10,8 +10,6 @@ function displayStats() {
   }
   
   if (statsData.length==0) return;
-
-  resetMatrix();
   fill(color(255,255,255, 200));
   stroke(color(100,100,100));
   
