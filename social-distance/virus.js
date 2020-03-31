@@ -18,9 +18,11 @@ var VStats = function() {
 
       var p = people[i];
       if (p.virus) {
-        vCount++;
-        replicateCount+=p.virus.replicats;
-        if (p.dead) {
+        if (p.virus.wasInfectious()) {
+            vCount++;
+            replicateCount+=p.virus.replicats;    
+        }
+        if (p.isDead()) {
           r.dead+=1;
         } else {
           if (p.virus.isRecovered()) {
@@ -71,16 +73,16 @@ class Virus {
         // Virus lifecycle
         this.steps=[];        
         // incubation
-        this.steps.push(1 + Math.round(2*Math.random()));
+        this.steps.push( Math.round(1*Math.random()));
         // infectiousNotSick
-        this.steps.push(2 + Math.round(3*Math.random()));
+        this.steps.push(1 + Math.round(1*Math.random()));
         // sickness
-        this.steps.push(3 + Math.round(3*Math.random()*(1+age/100)));
+        this.steps.push(1 + Math.round(2*Math.random()*(1+age/100)));
 
         // define if host will die
         this.kill = Math.random() < 1.5*this.getFatalityRate(age);
         if (this.kill) {
-            console.log("Fatlity!!!");
+            console.log("Fatality!!!");
         }
         
         this.decal = Math.round(Math.random()*5*fr);
@@ -119,6 +121,14 @@ class Virus {
     // return for how long current host was infected
     getDuration() {
         return (now(this.decal).d-this.start);
+    }
+
+    wasInfectious() {
+        var d = this.getDuration();
+        if (d >= this.steps[0]) {
+            return true;
+        }
+        return false;
     }
 
     // lifecycle: is host currently infectious

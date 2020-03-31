@@ -162,7 +162,7 @@ class Person {
 
   // get current speed
   _speed() {
-    var s = Math.floor(fr/this.speedFactor);
+    var s = Math.floor(fr/(this.speedFactor*speedSlider.value()));
     if (this.isSick()) {
       s=Math.floor(s*0.6);
     }
@@ -284,24 +284,28 @@ class Person {
         }
       } 
     } else {
-      // find people moving in the same tile      
-      var t = this.movingPosition.curTile.travelers;
-      if (t) {
-        for (var i = 0; i < t.length; i++) {
-          var p = t[i];
-          if (p._id != this._id) {
-            l.push(p._id);
-          }
-        } 
+      // find people moving in the same tile
+      if (this.movingPosition.curTile) {      
+        var t = this.movingPosition.curTile.travelers;
+        if (t) {
+          for (var i = 0; i < t.length; i++) {
+            var p = t[i];
+            if (p._id != this._id) {
+              l.push(p._id);
+            }
+          } 
+        }
       }
-      t = this.movingPosition.nextTile.travelersNext;
-      if (t) {
-        for (var i = 0; i < t.length; i++) {
-          var p = t[i];
-          if (p._id != this._id) {
-            l.push(p._id);
-          }
-        }      
+      if (this.movingPosition.nextTile) {
+        t = this.movingPosition.nextTile.travelersNext;
+        if (t) {
+          for (var i = 0; i < t.length; i++) {
+            var p = t[i];
+            if (p._id != this._id) {
+              l.push(p._id);
+            }
+          }      
+        }
       }
     }
     return l;
@@ -312,13 +316,17 @@ class Person {
       this._updateFollower();      
       var potentialVictims = this._getLongTermNeighbors(2);
       if (potentialVictims.length>0) {
-        var idx = Math.round(Math.random() * (potentialVictims.length-1));
-        var victim = potentialVictims[idx];
-        if (!victim){
-          console.log("WTF!");
-        }
-        if (!victim.virus) {
-          this.virus.infect(victim);
+        var nbVictims = Math.min(potentialVictims.length, Math.round(Math.random()*2));
+        var infected =0;
+        for (var i=0; i < potentialVictims.length; i++) {
+          var victim = potentialVictims[i];  
+          if (!victim.virus) {
+            this.virus.infect(victim);
+            infected++;
+          }
+          if (infected>=nbVictims) {
+            break;
+          }            
         }
       }
     }

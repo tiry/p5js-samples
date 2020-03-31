@@ -22,6 +22,8 @@ var showLegend = true;
 var autoFrameEnabled=true;
 var mouseMode = null;
 
+var speedSlider;
+
 function setup() {
   var cv =createCanvas(w, h);
   cv.parent("holder");
@@ -39,6 +41,10 @@ function setup() {
   displayLegendBtn = createButton('Hide Legend');
   displayLegendBtn.position(w +10, 55);
   displayLegendBtn.mousePressed(toggleDisplayLegend);
+
+  speedSlider = createSlider(0, 5, 1, 1);
+  speedSlider.position(w +10, 80);
+  speedSlider.style('width', '80px');
 
   // init Tiles
   initCityLayout();
@@ -224,6 +230,9 @@ function mouseReleased(event) {
 }
 
 function mouseDragged(event){
+  if (mouseX > w || mouseY > h) {
+    return;
+  }
   if (mouseMode == "MOVE") {
     cx += event.movementX;
     cy += event.movementY;

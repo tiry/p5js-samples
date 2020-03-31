@@ -1,12 +1,13 @@
 /******** Basic Time Counter ********/
 
 var NB_H_PER_DAYS=18;
+
 var TIME_SCALE=2;
 
 var timeCounter=0;
 
 function tick() {    
-    timeCounter++;
+    timeCounter=timeCounter+ speedSlider.value();
 }
 
 function now(decal) {

@@ -44,7 +44,7 @@ function displayStats() {
 
   tx = w-90;
   var tpc = Math.round(100*now().h/NB_H_PER_DAYS);
-  var label = "Day: " + now().d + " (" + tpc + "%)";
+  var label = "Day: " + (1+now().d) + " (" + tpc + "%)";
   text(label, tx , 15);  
 
 
