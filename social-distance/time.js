@@ -36,6 +36,18 @@ function findInNeighborhood(person, type, range) {
     return null;
 }
 
+function findFreeBedInICU() {
+    for (var i=0; i < buildings.length; i++) {
+        var b = buildings[i];
+        if (b.type==BType.HOSPITAL) {
+            if (b.icus>0) {
+                b.icus--;
+                return b;
+            }
+        }
+    }
+}
+
 // Each individual is assigned a schedule 
 // that defines where to go during each time slots
 class Schedule {
@@ -56,12 +68,35 @@ class Schedule {
             this.slots.push(this.owner.home);
         }
 
-        if (this.owner.age < 20) {
-            this._initChildScheldule();
-        } else if (this.owner.work!=null) {
-            this._initAdultScheldule();
+        if (this.owner.virus && this.owner.virus.requiresICU()) {
+            this._initICUSchedule();
+        } else {
+            if (this.owner.icu) {
+                this.owner.icu.icus++;
+                this.owner.icu=null;
+            }
+            if (this.owner.age < 20) {
+                this._initChildScheldule();
+            } else if (this.owner.work!=null) {
+                this._initAdultScheldule();
+            }
         }
         this.currentDay=now().weekDay;
+    }
+
+    _initICUSchedule(){
+        var icu = this.owner.icu;
+        if (!icu) {
+            icu = findFreeBedInICU();
+        }
+        if (icu) {
+            for (var h=0; h < NB_H_PER_DAYS; h++) {
+                this.slots[h]=icu;
+            }   
+            this.owner.icu = icu; 
+        } else {
+            console.log("Unable to find ICO Bed");
+        }
     }
 
     _initChildScheldule() {        

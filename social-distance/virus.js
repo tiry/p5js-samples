@@ -85,6 +85,12 @@ class Virus {
             console.log("Fatality!!!");
         }
         
+        this.severeForm = Math.random() < 4*this.getFatalityRate(age);
+        if (this.severeForm) {
+            console.log("Will need ICO!!!");
+        }
+        this.icu=null;
+
         this.decal = Math.round(Math.random()*5*fr);
 
         // counter for lifespan inside host
@@ -118,6 +124,14 @@ class Virus {
         return 0;
     }
 
+    _getStageDuration(n) {
+        var duration=0;
+        for (var i = 0; i <=n; i++) {
+            duration+=this.steps[i];
+        }
+        return duration;
+    }
+
     // return for how long current host was infected
     getDuration() {
         return (now(this.decal).d-this.start);
@@ -125,7 +139,7 @@ class Virus {
 
     wasInfectious() {
         var d = this.getDuration();
-        if (d >= this.steps[0]) {
+        if (d >= this._getStageDuration(0)) {
             return true;
         }
         return false;
@@ -134,7 +148,7 @@ class Virus {
     // lifecycle: is host currently infectious
     isInfectious() {
         var d = this.getDuration();
-        if ((d >= this.steps[0]) && (d < (this.steps[0]+this.steps[1]+this.steps[2]))) {
+        if ((d >= this._getStageDuration(0)) && (d < this._getStageDuration(2))) {
             return true;
         }
         return false;
@@ -143,7 +157,7 @@ class Virus {
     // lifecycle: is host currently sympthomatic
     isSick() {
         var d = this.getDuration();
-        if ((d >= this.steps[0]+this.steps[1]) && (d < (this.steps[0]+this.steps[1]+this.steps[2]))) {
+        if ((d >= this._getStageDuration(1)) && (d < (this._getStageDuration(2)))) {
             return true;
         }
         return false;
@@ -152,18 +166,21 @@ class Virus {
     // lifecycle: has host recovered
     isRecovered() {
       var d = this.getDuration();
-      if (d >= (this.steps[0]+this.steps[1]+this.steps[2])) {
-          return ! this.kill;
+      if (d >= (this._getStageDuration(2))) {
+          return ! this.isDead();
       }
     }
 
     isDead() {
         var d = this.getDuration();
-        if (d >= (this.steps[0]+this.steps[1]+this.steps[2])) {
-            return this.kill;
+        if (d >= (this._getStageDuration(2))) {
+            return this.kill || (this.severeForm && !this.icu)
         }
     }
   
+    requiresICU(){
+        return this.isSick() && this.severeForm;
+    }
 
 
 }

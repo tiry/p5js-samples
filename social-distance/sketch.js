@@ -71,7 +71,7 @@ function initCityLayout() {
         //  10 => shops
         //  15 => company
         //  05 => schools
-        //  02 => hospital
+        //  01 => hospital
         //  03 => venue
         //  10 => restaurant
 
@@ -89,10 +89,10 @@ function initCityLayout() {
         } else if (p < 85) {
           btype=BType.SCHOOL;
           n=1;
-        } else if (p < 87) {
+        } else if (p < 86) {
           btype=BType.HOSPITAL;
           n=1;
-        } else if (p < 90) {
+        } else if (p < 89) {
           btype=BType.VENUE;
           n=1;
         } else if (p <= 100) {

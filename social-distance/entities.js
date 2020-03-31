@@ -215,6 +215,7 @@ class Building {
       case BType.HOSPITAL:
         base = 10;
         amplitude=300;      
+        this.icus = 4+ Math.round(Math.random()*8);
       case BType.VENUE:
         base = 10;
         amplitude=200;      
@@ -236,6 +237,10 @@ class Building {
 
   leave(p) {
     this._people = this._people.filter(function (v, i, a){return v._id!=p._id});
+  }
+
+  isFull(){
+    return this._people.length >= this.capacity;
   }
 
   getPeople() {
