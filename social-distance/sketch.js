@@ -64,7 +64,6 @@ function setup() {
 
   reset();
   scenarios[0].activate();
-
 }
 
 function reset(){

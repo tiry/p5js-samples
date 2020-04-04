@@ -265,6 +265,10 @@ class Person {
     this.currentLocation= oldTarget;
     this.schedule.updateTarget(oldTarget, newTarget);
     this.setTarget(newTarget);
+    // handle specific case for ICU
+    if (this.icu && this.icu._id==oldTarget._id) {
+      this.icu = newTarget;
+    }
     this._update();
   }
   // get list of people that are around be for more than a given time

@@ -72,14 +72,9 @@ class Virus {
 
         // define if host will die
         this.kill = Math.random() < 1.5*this.getFatalityRate(age);
-        if (this.kill) {
-            console.log("Fatality!!!");
-        }
-        
+
+        // severe form will require ICU
         this.severeForm = Math.random() < 4*this.getFatalityRate(age);
-        if (this.severeForm) {
-            console.log("Will need ICO!!!");
-        }
 
         this.decal = Math.round(Math.random()*5*fr);
 

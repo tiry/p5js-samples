@@ -20,6 +20,7 @@ class Scenario {
 new Scenario("Normal Population", function(){initPopulation(20);});
 new Scenario("Only School (debug)", function(){initDebugSchoolPopulation(20);});
 new Scenario("Black Friday", function(){initDebugBlackFriday(50);});
+new Scenario("ICU Overload", initDebugICU);
 new Scenario("Billie Jean", function(){initDebugMichael(1);});
 
 
@@ -105,9 +106,16 @@ function initDebugSchoolPopulation(nb) {
 
 // DEBUG
 // simulate ICU overwheled
-function initDebugICU(nb) {
+function initDebugICU() {
 
-  while (people.length < nb) {
+ var capacity=0;
+ for (var idx=0; idx < buildings.length; idx++) {
+    if (buildings[idx].type==BType.HOSPITAL) {
+        capacity+=buildings[idx].capacity;
+    }
+ }
+
+  while (people.length < 3*capacity) {
     var b = Math.floor(Math.random()*buildings.length);
     if (buildings[b].type==BType.HOUSE) {
       var p = new Person(buildings[b], 15);

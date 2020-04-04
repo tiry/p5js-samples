@@ -57,12 +57,10 @@ class Schedule {
         }
         
         this.initialize();
-
-        if (this.owner.virus && this.owner.needsICU()) {
+        if (this.owner.needsICU()) {
             this._initICUSchedule();
         } else {
             if (this.owner.icu) {
-                this.owner.icu.icubeds++;
                 this.owner.icu=null;
             }
             if (this.owner.age < 20) {
@@ -77,7 +75,7 @@ class Schedule {
     _initICUSchedule(){
         var icu = this.owner.icu;
         if (!icu) {
-            icu = findFreeBedInICU(this.home.tile);
+            icu = findFreeBedInICU(this.owner.home.tile);
         }
         if (icu) {
             for (var h=0; h < NB_H_PER_DAYS; h++) {

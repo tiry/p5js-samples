@@ -23,8 +23,11 @@ function findInNeighborhood(tile, type, range, checkFull) {
     }    
 }
 
-function findClosest(tile, type, checkFull) {
+function findClosest(tile, type, checkFull,maxRange) {
 
+    if (!maxRange) {
+        maxRange=10;
+    }
     var found=null;
     var range=1;
     while (found==null && range < 10) {
@@ -38,17 +41,5 @@ function findClosest(tile, type, checkFull) {
 }
 
 function findFreeBedInICU(tile) {
-    return findClosest(tile, BType.HOSPITAL, true);
-}
-
-function __findFreeBedInICU() {
-    for (var i=0; i < buildings.length; i++) {
-        var b = buildings[i];
-        if (b.type==BType.HOSPITAL) {
-            if (b.icubeds>0) {
-                b.icubeds--;
-                return b;
-            }
-        }
-    }
+    return findClosest(tile, BType.HOSPITAL, true, 15);
 }

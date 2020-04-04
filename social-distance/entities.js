@@ -213,10 +213,8 @@ class Building {
         base = 2;
         amplitude=200;
       case BType.HOSPITAL:
-        base = 10;
-        amplitude=300;      
-        this.icubeds = 4+ Math.round(Math.random()*8);
-        return this.icubeds;
+        base = 4;
+        amplitude=10;      
       case BType.VENUE:
         base = 10;
         amplitude=200;      
