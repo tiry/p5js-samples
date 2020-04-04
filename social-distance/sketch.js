@@ -24,6 +24,8 @@ var mouseMode = null;
 
 var speedSlider;
 
+var selectScenario;
+
 function setup() {
   var cv =createCanvas(w, h);
   cv.parent("holder");
@@ -46,14 +48,31 @@ function setup() {
   speedSlider.position(w +10, 80);
   speedSlider.style('width', '80px');
 
-  // init Tiles
-  initCityLayout();
+  selectScenario=createSelect();
+  selectScenario.position(w +10, 105);
+  selectScenario.style('width', '200px');
 
-  initDebugBlackFriday(50);
-  //initDebugMichael(1);
-  //initPopulation(20);
-  //initDebugPopulation(10);
-  //initDebugICU(5);
+  for (var i = 0; i < scenarios.length; i++) {
+    selectScenario.option(scenarios[i].title);
+  }
+
+
+  selectScenario.changed(function(e) {
+    reset();
+    activateScenario(selectScenario.value());
+  });
+
+  reset();
+  scenarios[0].activate();
+
+}
+
+function reset(){
+  buildings=[];
+  people=[];
+  statsData=[];
+  timeCounter=0;
+  initCityLayout();
 }
 
 function initCityLayout() {

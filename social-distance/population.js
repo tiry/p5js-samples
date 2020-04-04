@@ -1,6 +1,38 @@
+var scenarios=[];
+
+class Scenario {
+
+    constructor(title, cb) {
+  
+        this.title = title;
+        this.cb = cb;
+  
+        this._id = scenarios.length;
+        scenarios.push(this);
+    }
+
+    activate(){
+        this.cb();
+    }
+
+}
+
+new Scenario("Normal Population", function(){initPopulation(20);});
+new Scenario("Only School (debug)", function(){initDebugSchoolPopulation(20);});
+new Scenario("Black Friday", function(){initDebugBlackFriday(50);});
+new Scenario("Billie Jean", function(){initDebugMichael(1);});
+
+
+function activateScenario(label) {
+    for (var i = 0; i < scenarios.length; i++) {
+        if (scenarios[i].title===label) {
+            scenarios[i].activate();
+        }
+    }    
+}
 
 // infect randomly a given number of people
-function initPandemic(nbInitialCases) {
+function _initPandemic(nbInitialCases) {
 
     var infected=0;
 
@@ -111,5 +143,5 @@ function initPopulation(nbCases) {
     }
   }
 
-  initPandemic(nbCases);
+  _initPandemic(nbCases);
 }
