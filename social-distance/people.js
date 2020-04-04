@@ -1,5 +1,15 @@
 //**************************
 
+const HealthState =  {
+  HEALTHY: 0,
+  INCUBATION: 1,
+  INFECTIOUS: 2,
+  SICK: 3,
+  RECOVERED: 4,
+  DEAD: -1
+}
+
+
 var people=[];
 
 var PEOPLE_BASE_SPEED = 2.5;
@@ -10,6 +20,8 @@ class Person {
 
     this.age = age;
     
+    this.health = HealthState.HEALTHY;
+
     // attach to home
     this.home = home;      
     home.enter(this);
@@ -45,25 +57,6 @@ class Person {
 
   }
 
-  isInfectious() {
-      if (this.virus) return this.virus.isInfectious();
-      return false;
-  }
-
-  isSick() {
-      if (this.virus) return this.virus.isSick();
-      return false;
-  }
-
-  isRecovered() {
-    if (this.virus) return this.virus.isRecovered();
-    return false;
-  }
-
-  isDead() {
-    if (this.virus) return this.virus.isDead();
-    return false;
-  }
 
   _assignWork() {
     this.work=null;
@@ -170,6 +163,7 @@ class Person {
   }
 
   update() {
+    this._checkHealth();
     this._update();    
   }
 
@@ -177,6 +171,38 @@ class Person {
     if (this.moving) {
       this._interpolateCurrentPosition();
     }
+  }
+
+  _checkHealth() {
+    if (this.isDead() || this.isRecovered()) {
+      return;
+    }
+    if (this.virus) {
+      var stage = this.virus.getStage();
+      if (stage < HealthState.RECOVERED) {
+        this.health = stage;
+      } else {
+        if (this.virus.isFatal()) {
+          this._die();
+        } else {
+          if (this.virus.isSevereForm()) {
+            if (this._isInICU()) {
+              this.health=HealthState.RECOVERED;
+            } else {
+              this._die();
+            }
+          } else {
+            this.health=HealthState.RECOVERED;
+          }
+        }
+      }
+    }
+  }
+
+  _die() {
+    this.health=HealthState.DEAD;
+    this.leaveCurrentLocation();
+    this.setLocation(this.home);
   }
 
   _update() {    
@@ -345,6 +371,10 @@ class Person {
     building.enter(this);
   }
 
+  _isInICU() {
+    return this.currentLocation.type==BType.HOSPITAL;
+  }
+
   // define coordinate for current path segment
   setTrajectory(x,y,beginning) {
     if (beginning) {
@@ -413,6 +443,38 @@ class Person {
     }
     fill(this.getColor());    
     circle(this.movingPosition.x, this.movingPosition.y, this.size);
+  }
+
+  getHealthState() {
+    return this.health;
+  }
+
+  wasInfectious() {
+    if (this.virus) {
+      return this.virus.getStage()>0;
+    }
+    return false;
+  }
+
+  isInfectious() {
+    if(this.isDead()) return false;
+    return (this.health> HealthState.INCUBATION) && (this.health <HealthState.RECOVERED);
+  }
+
+  isSick() {
+    return this.health==HealthState.SICK;
+  }
+
+  isRecovered() {
+    return this.health==HealthState.RECOVERED;  
+  }
+
+  isDead() {
+    return this.health==HealthState.DEAD;
+  }
+
+  needsICU() {
+    return this.isSick() && this.virus.isSevereForm();
   }
 
 }

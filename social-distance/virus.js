@@ -18,14 +18,14 @@ var VStats = function() {
 
       var p = people[i];
       if (p.virus) {
-        if (p.virus.wasInfectious()) {
+        if (p.wasInfectious()) {
             vCount++;
             replicateCount+=p.virus.replicats;    
         }
         if (p.isDead()) {
           r.dead+=1;
         } else {
-          if (p.virus.isRecovered()) {
+          if (p.isRecovered()) {
             r.recovered++;
           } else {
             r.infected++;
@@ -48,20 +48,9 @@ var VStats = function() {
     return r;
 }
 
-function initPandemic(nbInitialCases) {
 
-    var infected=0;
 
-    while (infected < nbInitialCases) {
-        var target = Math.floor(Math.random()*people.length);
-        if (!target.virus) {
-            new Virus(people[target]);
-            infected++;
-        }
-    }
-
-}
-
+  
 class Virus {
   
     constructor(host) {
@@ -70,6 +59,8 @@ class Virus {
 
         var age = host.age;
         
+        this.host = host;
+
         // Virus lifecycle
         this.steps=[];        
         // incubation
@@ -89,7 +80,6 @@ class Virus {
         if (this.severeForm) {
             console.log("Will need ICO!!!");
         }
-        this.icu=null;
 
         this.decal = Math.round(Math.random()*5*fr);
 
@@ -137,6 +127,28 @@ class Virus {
         return (now(this.decal).d-this.start);
     }
 
+    getStage() {
+        var d = this.getDuration();
+        if (d < this._getStageDuration(0)) {
+            return HealthState.INCUBATION;
+        }
+        else if (d >= this._getStageDuration(0) && d < this._getStageDuration(1)) {
+            return HealthState.INFECTIOUS;
+        }
+        else if (d >= this._getStageDuration(1) && d < this._getStageDuration(2)) {
+            return HealthState.SICK;
+        }    
+        return HealthState.RECOVERED;
+    }
+
+    isFatal() {
+        return this.kill;
+    }
+
+    isSevereForm() {
+        return this.severeForm;
+    }
+
     wasInfectious() {
         var d = this.getDuration();
         if (d >= this._getStageDuration(0)) {
@@ -144,43 +156,5 @@ class Virus {
         }
         return false;
     }
-
-    // lifecycle: is host currently infectious
-    isInfectious() {
-        var d = this.getDuration();
-        if ((d >= this._getStageDuration(0)) && (d < this._getStageDuration(2))) {
-            return true;
-        }
-        return false;
-    }
-
-    // lifecycle: is host currently sympthomatic
-    isSick() {
-        var d = this.getDuration();
-        if ((d >= this._getStageDuration(1)) && (d < (this._getStageDuration(2)))) {
-            return true;
-        }
-        return false;
-    }
-
-    // lifecycle: has host recovered
-    isRecovered() {
-      var d = this.getDuration();
-      if (d >= (this._getStageDuration(2))) {
-          return ! this.isDead();
-      }
-    }
-
-    isDead() {
-        var d = this.getDuration();
-        if (d >= (this._getStageDuration(2))) {
-            return this.kill || (this.severeForm && !this.icu)
-        }
-    }
-  
-    requiresICU(){
-        return this.isSick() && this.severeForm;
-    }
-
 
 }

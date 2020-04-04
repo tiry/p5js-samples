@@ -40,8 +40,8 @@ function findFreeBedInICU() {
     for (var i=0; i < buildings.length; i++) {
         var b = buildings[i];
         if (b.type==BType.HOSPITAL) {
-            if (b.icus>0) {
-                b.icus--;
+            if (b.icubeds>0) {
+                b.icubeds--;
                 return b;
             }
         }
@@ -68,11 +68,11 @@ class Schedule {
             this.slots.push(this.owner.home);
         }
 
-        if (this.owner.virus && this.owner.virus.requiresICU()) {
+        if (this.owner.virus && this.owner.needsICU()) {
             this._initICUSchedule();
         } else {
             if (this.owner.icu) {
-                this.owner.icu.icus++;
+                this.owner.icu.icubeds++;
                 this.owner.icu=null;
             }
             if (this.owner.age < 20) {
