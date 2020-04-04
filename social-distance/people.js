@@ -12,7 +12,8 @@ const HealthState =  {
 
 var people=[];
 
-var PEOPLE_BASE_SPEED = 2.5;
+//var PEOPLE_BASE_SPEED = 2.5;
+var PEOPLE_BASE_SPEED = 0.5;
 
 class Person {
 
@@ -361,7 +362,7 @@ class Person {
   leaveCurrentLocation() {
     if (this.currentLocation) {
       this.currentLocation.leave(this);
-    }      
+    }          
     this.currentLocation=null;
   }
 
@@ -376,11 +377,23 @@ class Person {
   }
 
   // define coordinate for current path segment
-  setTrajectory(x,y,beginning) {
+  setTrajectory(x,y,beginning, tile) {
     if (beginning) {
-      this.startPos = {x: x, y: y};
+      this.startPos = {x: x, y: y, t: tile};
     } else {
-      this.endPos = {x: x, y: y};
+      this.endPos = {x: x, y: y, t:tile};
+    }
+  }
+
+  getCurrentTile() {
+    if (!this.moving) {
+      return this.currentLocation.tile;
+    }
+    var r = this._getInterTilesPosition()
+    if ( r <=0.5) {
+      return this.startPos.t;
+    } else {
+      return this.endPos.t;
     }
   }
 
@@ -412,24 +425,32 @@ class Person {
     }  
   }
 
+  _getInterTilesPosition() {
+    if (!this.moving) {
+      return;
+    }
+    var s = this._speed();
+    var f = (now().t - this.departureTime)%s;
+    return f/s;
+  }
+
   // interpolate position on the current path segment
   _interpolateCurrentPosition() {
 
     if (!this.moving) {
       return;
     }
-    var s = this._speed();
-    var f = (now().t - this.departureTime)%s;
+    var r = this._getInterTilesPosition();
 
-    var x = (1-f/s)*this.startPos.x;
-    var y = (1-f/s)*this.startPos.y;
+    var x = (1-r)*this.startPos.x;
+    var y = (1-r)*this.startPos.y;
 
     if (this.endPos) {
-      x += (f/s)*this.endPos.x;
-      y += (f/s)*this.endPos.y;          
+      x += r*this.endPos.x;
+      y += r*this.endPos.y;          
     } else {
-      x += (f/s)*this.destinationBuilding.tile.center.x;
-      y += (f/s)*this.destinationBuilding.tile.center.y;  
+      x += r*this.destinationBuilding.tile.center.x;
+      y += r*this.destinationBuilding.tile.center.y;  
     }
     
     this.movingPosition.x=x;
@@ -443,8 +464,20 @@ class Person {
     }
     fill(this.getColor());    
     circle(this.movingPosition.x, this.movingPosition.y, this.size);
+
+    this._billieJean();
   }
 
+  _billieJean() {
+    if (this.isMichael) {
+      if (this.cTile) {
+        this.cTile.selected=false;
+      }
+      this.cTile = this.getCurrentTile();
+      this.cTile.selected=true;
+      //console.log(this.cTile._id);
+    }
+  }
   getHealthState() {
     return this.health;
   }

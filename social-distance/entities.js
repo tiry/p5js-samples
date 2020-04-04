@@ -52,22 +52,22 @@ class Tile {
     }
 
     draw() {      
-      if (this.selected) {
-        strokeWeight(2)
-        stroke(color(255,0,0));
-      } else {        
-        stroke(color(0,0,0));
-      }
       if (this.children.length==0 || this.selected) {
         fill(color(220,220,220));
-        strokeWeight(0)
-        square(this.center.x*this.width, this.center.y*this.width, this.width, 0);
-      } else {
-        for (var c=0; c < this.children.length; c++) {
-          this.children[c].draw();
+        if (this.selected) {
+          strokeWeight(2)
+          stroke(color(255,0,0));
+        } else {        
+          strokeWeight(0)
+          stroke(color(0,0,0));
         }
-      }
-      strokeWeight(1)
+        square(this.center.x*this.width, this.center.y*this.width, this.width, 0);
+      }         
+      for (var c=0; c < this.children.length; c++) {
+          this.children[c].draw();
+      }     
+      strokeWeight(1);
+      stroke(color(0,0,0));
     }
 
     deploy(b) {
@@ -107,7 +107,7 @@ class Tile {
         x=this.center.x*this.width;        
         for (var i=0; i < lines[l]; i++) {
           x+=dx;
-          crowd[idx].setTrajectory(x,y,start);
+          crowd[idx].setTrajectory(x,y,start, this);
           idx++;
         }
       }

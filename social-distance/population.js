@@ -13,6 +13,15 @@ function initPandemic(nbInitialCases) {
 
 }
 
+function initDebugMichael(nb) {    
+    while (people.length<nb) {
+      var b = Math.floor(Math.random()*buildings.length);
+      if (buildings[b].type==BType.HOUSE) {
+        new Person(buildings[b], 15).isMichael=true;
+      }
+    }
+}
+  
 
 function initDebugSchoolPopulation(nb) {
 
