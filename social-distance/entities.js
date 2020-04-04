@@ -208,7 +208,7 @@ class Building {
         amplitude=400;
       case BType.SHOP:
         base = 1;
-        amplitude=50;
+        amplitude=25;
       case BType.COMPANY:
         base = 2;
         amplitude=200;
@@ -216,6 +216,7 @@ class Building {
         base = 10;
         amplitude=300;      
         this.icubeds = 4+ Math.round(Math.random()*8);
+        return this.icubeds;
       case BType.VENUE:
         base = 10;
         amplitude=200;      

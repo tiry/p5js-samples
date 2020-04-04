@@ -24,29 +24,6 @@ function now(decal) {
 
 /******** Schedule Management ********/
 
-function findInNeighborhood(person, type, range) {
-    var candidates = person.home.tile.getNeighborhood(range);
-    for (var i = 0; i < candidates.length; i++ ) {
-        for (var j = 0; j < candidates[i].children.length; j++ ) {
-            if (candidates[i].children[j].type==type) {
-                return candidates[i].children[j];
-            }
-        }
-    }
-    return null;
-}
-
-function findFreeBedInICU() {
-    for (var i=0; i < buildings.length; i++) {
-        var b = buildings[i];
-        if (b.type==BType.HOSPITAL) {
-            if (b.icubeds>0) {
-                b.icubeds--;
-                return b;
-            }
-        }
-    }
-}
 
 // Each individual is assigned a schedule 
 // that defines where to go during each time slots
@@ -57,16 +34,29 @@ class Schedule {
         this.owner = person;        
         this.currentDay=0;
         this.decal=Math.round(Math.random()*5*fr);
+        this.frozen=false;
     }
 
-    _initIfNeeded() {
-        if (now().weekDay==this.currentDay) {
-            return;
-        }
+    initialize() {
         this.slots = [];
         for (var h=0; h < NB_H_PER_DAYS; h++) {
             this.slots.push(this.owner.home);
         }
+    }
+
+    updateTarget(oldLoc, newLoc) {
+        for (var h=0; h < NB_H_PER_DAYS; h++) {
+            if (this.slots[h]._id==oldLoc._id) {
+                this.slots[h]=newLoc;
+            }
+        }
+    }
+    _initIfNeeded() {
+        if (now().weekDay==this.currentDay || this.frozen ) {
+            return;
+        }
+        
+        this.initialize();
 
         if (this.owner.virus && this.owner.needsICU()) {
             this._initICUSchedule();
@@ -87,7 +77,7 @@ class Schedule {
     _initICUSchedule(){
         var icu = this.owner.icu;
         if (!icu) {
-            icu = findFreeBedInICU();
+            icu = findFreeBedInICU(this.home.tile);
         }
         if (icu) {
             for (var h=0; h < NB_H_PER_DAYS; h++) {
@@ -99,11 +89,15 @@ class Schedule {
         }
     }
 
-    _initChildScheldule() {        
-        var d = Math.round(Math.random()*2.9);     
+    initMonoLocation(loc, delay) {
+        var d = Math.round(Math.random()*delay);     
         for (var i = 0; i < 5+d; i++) {
-            this.slots[d+i] = this.owner.work;
+            this.slots[d+i] = loc;
         }
+    }
+
+    _initChildScheldule() {        
+        this.initMonoLocation(this.owner.work, 2.9);
     }
 
     _initAdultScheldule() {   
@@ -114,14 +108,14 @@ class Schedule {
         }
 
         if (Math.random()<0.5) {
-            var shop = findInNeighborhood(this.owner, BType.SHOP, 2);
+            var shop = findInNeighborhood(this.owner.home.tile, BType.SHOP, 2);
             if (shop!=null) {
                 this.slots[endWork+2]=shop;
                 this.slots[endWork+3]=shop;
             }
         }
         else if (Math.random()<0.4) {
-            var venue = findInNeighborhood(this.owner, BType.VENUE, 4);
+            var venue = findInNeighborhood(this.owner.home.tile, BType.VENUE, 4);
             if (venue!=null) {
                 this.slots[endWork+3]=venue
                 this.slots[endWork+4]=venue;

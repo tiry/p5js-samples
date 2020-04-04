@@ -9,18 +9,16 @@ const HealthState =  {
   DEAD: -1
 }
 
-
 var people=[];
 
-//var PEOPLE_BASE_SPEED = 2.5;
-var PEOPLE_BASE_SPEED = 0.5;
+var PEOPLE_BASE_SPEED = 2.5;
+//var PEOPLE_BASE_SPEED = 0.5;
 
 class Person {
 
   constructor(home, age) {
 
-    this.age = age;
-    
+    this.age = age;    
     this.health = HealthState.HEALTHY;
 
     // attach to home
@@ -235,9 +233,21 @@ class Person {
           nextTile.push(this);
           this.movingPosition.nextTile = nextTile;
         } else {
-          this.setLocation(this.destinationBuilding);
-          this.destinationBuilding=null;
-          this.moving=false;
+          // we are at the end of the path
+          if (!this.destinationBuilding.isFull()) {
+            this.setLocation(this.destinationBuilding);
+            this.destinationBuilding=null;
+            this.moving=false;  
+          } else {
+            // redirect to a new location !
+            var alternative = findClosest(this.getCurrentTile(), this.destinationBuilding.type, true);            
+            if (alternative) {              
+              this._changePlans(this.destinationBuilding, alternative);
+            } else {
+              this._changePlans(this.destinationBuilding, this.home);
+            }
+            this._update();
+          }
         }
       }
     } else {      
@@ -251,6 +261,12 @@ class Person {
     }
   }
 
+  _changePlans(oldTarget, newTarget) {
+    this.currentLocation= oldTarget;
+    this.schedule.updateTarget(oldTarget, newTarget);
+    this.setTarget(newTarget);
+    this._update();
+  }
   // get list of people that are around be for more than a given time
   _getLongTermNeighbors(threshold) {
     var p = [];
@@ -475,9 +491,9 @@ class Person {
       }
       this.cTile = this.getCurrentTile();
       this.cTile.selected=true;
-      //console.log(this.cTile._id);
     }
   }
+
   getHealthState() {
     return this.health;
   }

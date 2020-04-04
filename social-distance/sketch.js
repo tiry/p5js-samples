@@ -49,7 +49,8 @@ function setup() {
   // init Tiles
   initCityLayout();
 
-  initDebugMichael(1);
+  initDebugBlackFriday(50);
+  //initDebugMichael(1);
   //initPopulation(20);
   //initDebugPopulation(10);
   //initDebugICU(5);

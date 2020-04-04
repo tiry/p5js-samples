@@ -1,4 +1,5 @@
 
+// infect randomly a given number of people
 function initPandemic(nbInitialCases) {
 
     var infected=0;
@@ -13,6 +14,8 @@ function initPandemic(nbInitialCases) {
 
 }
 
+// DEBUG
+// Billie Jean style walk
 function initDebugMichael(nb) {    
     while (people.length<nb) {
       var b = Math.floor(Math.random()*buildings.length);
@@ -22,7 +25,33 @@ function initDebugMichael(nb) {
     }
 }
   
+// DEBUG
+// make everyone go in the same location
+// verify that shop capacity is respected
+// and people redirect on other shops
+function initDebugBlackFriday(nb) {    
 
+    var shop;
+    while (!shop) {
+        var b = Math.floor(Math.random()*buildings.length);
+        if (buildings[b].type==BType.SHOP) {
+        shop=buildings[b];
+        }
+    }
+
+    while (people.length<nb) {
+        var b = Math.floor(Math.random()*buildings.length);
+        if (buildings[b].type==BType.HOUSE) {
+          var p = new Person(buildings[b], 30);
+          p.schedule.initialize();
+          p.schedule.frozen=true;
+          p.schedule.initMonoLocation(shop, 5);  
+        }
+    }
+}
+
+// DEBUG
+// children population all going to the same school
 function initDebugSchoolPopulation(nb) {
 
   var school;
@@ -42,6 +71,8 @@ function initDebugSchoolPopulation(nb) {
   }
 }
 
+// DEBUG
+// simulate ICU overwheled
 function initDebugICU(nb) {
 
   while (people.length < nb) {
@@ -56,6 +87,7 @@ function initDebugICU(nb) {
 
 }
 
+// random population 
 function initPopulation(nbCases) {
 
   for (var idx=0; idx < buildings.length; idx++) {
