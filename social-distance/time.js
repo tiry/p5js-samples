@@ -10,17 +10,26 @@ function tick() {
     timeCounter=timeCounter+ speedSlider.value();
 }
 
+function elaspsedHours(tRef) {
+    if (!tRef) {
+        tRef=0;
+    }
+    var h = Math.floor((timeCounter-tRef) /(fr*TIME_SCALE));
+    return h;
+}
+
 function now(decal) {
 
     if (!decal) {
         decal=0;
     }
-    var h = Math.floor((timeCounter+decal) /(fr*TIME_SCALE));
+    var h = elaspsedHours(-decal);
     var d =  Math.floor(h/NB_H_PER_DAYS);
     var wd = d % 7 +1
 
     return { h: (h%NB_H_PER_DAYS), d:d, weekDay:wd, t:timeCounter}
 }
+
 
 /******** Schedule Management ********/
 

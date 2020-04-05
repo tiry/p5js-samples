@@ -393,7 +393,11 @@ class Person {
   }
 
   _isInICU() {
-    return this.currentLocation.type==BType.HOSPITAL;
+    if (this.currentLocation) {
+      return this.currentLocation.type==BType.HOSPITAL;
+    } else {
+      return false;
+    }
   }
 
   // define coordinate for current path segment

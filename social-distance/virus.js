@@ -16,11 +16,11 @@ class Virus {
         // Virus lifecycle
         this.steps=[];        
         // incubation
-        this.steps.push( Math.round(1*Math.random()));
+        this.steps.push( Math.round(1*NB_H_PER_DAYS*Math.random()));
         // infectiousNotSick
-        this.steps.push(1 + Math.round(1*Math.random()));
+        this.steps.push(1 + Math.round(1*NB_H_PER_DAYS*Math.random()));
         // sickness
-        this.steps.push(1 + Math.round(2*Math.random()*(1+age/100)));
+        this.steps.push(1 + Math.round(2*NB_H_PER_DAYS*Math.random()*(1+age/100)));
 
         // define if host will die
         this.kill = Math.random() < 1.5*this.getFatalityRate(age);
@@ -28,10 +28,8 @@ class Virus {
         // severe form will require ICU
         this.severeForm = Math.random() < 4*this.getFatalityRate(age);
 
-        this.decal = Math.round(Math.random()*5*fr);
-
         // counter for lifespan inside host
-        this.start = now().d;
+        this.start = now().t;
 
         // counter for other hosts infected from current one
         // used to compute the resulting R0
@@ -70,12 +68,12 @@ class Virus {
     }
 
     // return for how long current host was infected
-    getDuration() {
-        return (now(this.decal).d-this.start);
+    _getDuration() {
+        return elaspsedHours(this.start);
     }
 
     getStage() {
-        var d = this.getDuration();
+        var d = this._getDuration();
         if (d < this._getStageDuration(0)) {
             return HealthState.INCUBATION;
         }
@@ -97,7 +95,7 @@ class Virus {
     }
 
     wasInfectious() {
-        var d = this.getDuration();
+        var d = this._getDuration();
         if (d >= this._getStageDuration(0)) {
             return true;
         }
