@@ -133,20 +133,27 @@ function initPopulation(nbCases) {
   for (var idx=0; idx < buildings.length; idx++) {
     if (buildings[idx].type==BType.HOUSE) {
 
+      var home = buildings[idx];
       //children
       var nb = Math.round(Math.random()*2.6);
       for (var i=0; i<nb; i++) {
-        var p = new Person(buildings[idx], 5 + Math.floor(Math.random()*25));
+        if (!home.isFull()) {
+            var p = new Person(home, 5 + Math.floor(Math.random()*25));
+        }
       }
       //parents
       nb = Math.round(1+ Math.random()*1.4);
       for (var i=0; i<nb; i++) {
-        var p = new Person(buildings[idx], 20 + Math.floor(Math.random()*45));
+        if (!home.isFull()) {
+            var p = new Person(home, 20 + Math.floor(Math.random()*45));
+        }
       }
       //gd parents
       nb = Math.round(Math.random()*1.55);
       for (var i=0; i<nb; i++) {
-        var p = new Person(buildings[idx], 45 + Math.floor(Math.random()*55));
+        if (!home.isFull()) {  
+            var p = new Person(home, 45 + Math.floor(Math.random()*55));
+        }
       }
     }
   }

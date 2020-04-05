@@ -29,13 +29,6 @@ function findTile(px, py) {
 
 //**************************
 
-function initTileSet(tileWidth, WX, WY) {
-  tiles=[];
-  tiles.tileWidth = tileWidth;
-  tiles.WX=WX;
-  tiles.WY=WY;
-}
-
 class Tile {
 
     constructor(center,width) {
@@ -175,7 +168,8 @@ const BType =  {
   COMPANY: 'company',
   HOSPITAL: 'hospital',
   VENUE: 'venue',
-  RESTAURANT: 'restaurant'
+  RESTAURANT: 'restaurant',
+  PARK: 'park'
 }
 
 class Building {
@@ -221,7 +215,10 @@ class Building {
       case BType.RESTAURANT:
         base = 2;
         amplitude=20;           
-    }
+      case BType.PARK:
+        base = 10;
+        amplitude=30;           
+      }
 
     return  base+ Math.round(Math.random()*amplitude);
   }
@@ -278,7 +275,6 @@ class Building {
 }
 
 function getBuildingColor(type) {
-
   switch(type){
     case BType.HOUSE:
       return color(160,82,45)
@@ -294,6 +290,8 @@ function getBuildingColor(type) {
       return color(207, 158, 230)
     case BType.RESTAURANT: 
       return color(212, 167, 116) 
+    case BType.PARK: 
+      return color(100, 255, 100) 
   }
 }
 
@@ -302,11 +300,11 @@ function displayBuildingLegend() {
   var keys = Object.keys(BType);
 
   var x=w-100;
-  var y = h-150;
+  var y = h-180;
 
   fill(color(255,255,255, 128));   
   stroke(color(0,0,0));
-  rect(x-5, y-5, 100, 150);
+  rect(x-5, y-5, 100, 165);
 
   for (var i = 0; i < keys.length; i++) {
     var label = BType[keys[i]];

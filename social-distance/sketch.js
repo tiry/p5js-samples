@@ -11,27 +11,26 @@ var zoom = 0.8;
 var targetZoom= zoom;
 var zoomStep = 0.001;
 
+// UI settings
 var pauseBtn;
 var paused = false;
 var displayStatsBtn;
 var showStats = true;
-
 var displayLegendBtn;
 var showLegend = true;
-
 var autoFrameEnabled=true;
 var mouseMode = null;
-
 var speedSlider;
-
 var selectScenario;
+
+var simulationCompleted=false;
 
 function setup() {
   var cv =createCanvas(w, h);
   cv.parent("holder");
   frameRate(fr);
 
-  // ui seetings
+  // ui setup
   pauseBtn = createButton('Pause');
   pauseBtn.position(w +10, 5);
   pauseBtn.mousePressed(togglePause);
@@ -51,111 +50,40 @@ function setup() {
   selectScenario=createSelect();
   selectScenario.position(w +10, 105);
   selectScenario.style('width', '200px');
-
   for (var i = 0; i < scenarios.length; i++) {
     selectScenario.option(scenarios[i].title);
   }
 
-
   selectScenario.changed(function(e) {
-    reset();
-    activateScenario(selectScenario.value());
+    startSimulation();
   });
 
-  reset();
-  scenarios[0].activate();
+  // init Simulation
+  startSimulation();
 }
 
-function reset(){
+function startSimulation() {
+  resetSimulation();  
+  activateScenario(selectScenario.value());
+  simulationCompleted=false;
+}
+
+function resetSimulation(){
   buildings=[];
   people=[];
-  statsData=[];
+  initStats();
   timeCounter=0;
+  paused=false;
   initCityLayout();
 }
 
-function initCityLayout() {
-
-  var tw = 40;
-  var roadX=8;
-  var roadY=3;
-
-  initTileSet(tw, Math.floor(w/tw), Math.floor(h/tw));
-
-  for (var i = 0; i <= tiles.WX; i++) {
-    for (var j = 0; j <= tiles.WY; j++) {
-      var t = new Tile(createVector(i,j), tw);
-      if (i%roadX!=0 && j%roadY!=0) {
-        var p = Math.random()*100;
-
-        //  55 => houses
-        //  10 => shops
-        //  15 => company
-        //  05 => schools
-        //  01 => hospital
-        //  03 => venue
-        //  10 => restaurant
-
-        var btype=BType.HOUSE;
-        var n = 1;
-        if (p < 55) {
-          btype=BType.HOUSE;
-          n=1+ Math.round(Math.random()*1.6);
-        } else if (p < 65) {
-          btype=BType.SHOP;
-          n=1+ Math.round(Math.random()*1);
-        } else if (p < 80) {
-          btype=BType.COMPANY;
-          n=1+ Math.round(Math.random()*1);
-        } else if (p < 85) {
-          btype=BType.SCHOOL;
-          n=1;
-        } else if (p < 86) {
-          btype=BType.HOSPITAL;
-          n=1;
-        } else if (p < 89) {
-          btype=BType.VENUE;
-          n=1;
-        } else if (p <= 100) {
-          btype=BType.RESTAURANT;
-          n=1;
-        }
-
-        for (var idx = 0; idx < n; idx++) {
-          var b = new Building(t, btype);
-          b.idx = idx;
-          t.deploy(b);
-        }        
-      }
-    }
-  }
-
-
-}
-
-function drawCity() {
-
-  if (!paused) {
-    for (var t =0; t < tiles.length; t++) {
-      tiles[t].resetTravelers();
-    }  
-    for (var p =0; p < people.length; p++) {
-      people[p].update();
-    }
-  }
-
-  for (var t =0; t < tiles.length; t++) {
-    tiles[t].draw();
-    if (!paused) tiles[t].positionTraverlers();
-  }  
-
-  for (var p =0; p < people.length; p++) {
-    if (!paused) people[p].position();
-    people[p].draw();
-  }  
-}
-
 function draw() {
+
+  if (simulationCompleted) {
+    displaySummary();
+    paused=true;
+    return;
+  }
 
   if (!paused) tick();
 
@@ -171,6 +99,8 @@ function draw() {
 
   if (showStats) displayStats();
   if (showLegend) displayBuildingLegend();
+
+  simulationCompleted = isSimulationCompleted();
 }
 
 function toggleDisplayLegend() {
@@ -190,7 +120,6 @@ function toggleDisplayStats() {
     displayStatsBtn.elt.innerText="Show Stats";
   }
 }
-
 
 function togglePause() {
   paused=!paused;

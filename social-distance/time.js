@@ -120,6 +120,14 @@ class Schedule {
                 this.slots[endWork+5]=venue;
             }
         }
+        else if (Math.random()<0.3) {
+            var restaurant = findInNeighborhood(this.owner.home.tile, BType.RESTAURANT, 3);
+            if (restaurant!=null) {
+                this.slots[endWork+4]=restaurant;
+                this.slots[endWork+5]=restaurant;
+            }
+        }
+
     }
 
     getTargetLocation() {
