@@ -2,12 +2,12 @@
 // canevas configuration
 var h=620;
 var w=1280;
-var fr=20; // framerate
+var fr=12; // framerate
 
-var cy = h/2;
-var cx = w/2;
+var cy = h;
+var cx = w;
 
-var zoom = 0.8;
+var zoom = 0.45;
 var targetZoom= zoom;
 var zoomStep = 0.001;
 

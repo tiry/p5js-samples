@@ -11,7 +11,7 @@ function initCityLayout() {
     var roadX=8;
     var roadY=3;
   
-    initTileSet(tw, Math.floor(w/tw), Math.floor(h/tw));
+    initTileSet(tw, Math.floor(2*w/tw), Math.floor(2*h/tw)-1);
   
     for (var i = 0; i <= tiles.WX; i++) {
       for (var j = 0; j <= tiles.WY; j++) {

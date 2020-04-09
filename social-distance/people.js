@@ -271,6 +271,7 @@ class Person {
     }
     this._update();
   }
+
   // get list of people that are around be for more than a given time
   _getLongTermNeighbors(threshold) {
     var p = [];
@@ -363,7 +364,7 @@ class Person {
       this._updateFollower();      
       var potentialVictims = this._getLongTermNeighbors(2);
       if (potentialVictims.length>0) {
-        var nbVictims = Math.min(potentialVictims.length, Math.round(Math.random()*2));
+        var nbVictims = Math.min(potentialVictims.length, 5);
         var infected =0;
         for (var i=0; i < potentialVictims.length; i++) {
           var victim = potentialVictims[i];  
@@ -375,6 +376,10 @@ class Person {
             break;
           }            
         }
+        if (infected>1) {
+          console.log("Super Spreader");
+        }
+
       }
     }
   }

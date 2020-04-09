@@ -146,6 +146,11 @@ function isSimulationCompleted() {
 
   var lstat = statsData[statsData.length-1];
 
+  // no more infected
+  if (lstat.infected==0) {
+    return true;
+  }
+
   // everyone is dead or recovered!
   if (lstat.recovered + lstat.dead == people.length) {
     return true;
