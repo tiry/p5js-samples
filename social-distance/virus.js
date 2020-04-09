@@ -22,7 +22,7 @@ class Virus {
         this.kill = Math.random() < 1.5*this.getFatalityRate(age);
 
         // severe form will require ICU
-        this.severeForm = Math.random() < 4*this.getFatalityRate(age);
+        this.severeForm = Math.random() < 5*this.getFatalityRate(age);
 
         // counter for lifespan inside host
         this.start = now().t;

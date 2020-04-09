@@ -127,7 +127,7 @@ function displaySummary() {
   var dh=h-40;
   
   rect(20, 20, dw, dh);
-  fill(color(220,220,220, 220));
+  fill(color(255,255,255, 240));
 
   _drawCurve(allData, sx,sy+dh,"sick", color(255,0,0), dw, dh);
   _drawCurve(allData, sx,sy+dh,"recovered", color(0,255,0), dw, dh);
@@ -137,7 +137,34 @@ function displaySummary() {
   fill(color(0,0,0));
   stroke(color(0,0,0));
   
+  var deathRate = 100* allData[allData.length-1].dead / people.length;
+  
+  var spikeSick = _findSpike(allData, "sick");
+  
+  var maxSick = 100* spikeSick.y/people.length;
+  var maxSickD = Math.floor(spikeSick.x / TIME_SCALE)/NB_H_PER_DAYS;
 
+  var label = "Death rate:" + deathRate.toFixed(2) + "%";
+  text(label, 800 , 400);  
+  label = "Spike Sicks:" + maxSickD.toFixed(2) + " days, with " + maxSick.toFixed(2) + "%";
+  text(label, 800 , 430);  
+
+}
+
+function _findSpike(data, key) {
+
+  var spikeY=0;
+  var spikeX=0;
+
+  for (var i = 0; i < data.length; i++) {
+    var y = data[i][key];
+    if (y > spikeY) {
+      spikeY=y;
+      spikeX=i;
+    }
+  }
+
+  return {x:spikeX, y:spikeY};
 }
 
 function isSimulationCompleted() {
