@@ -56,7 +56,6 @@ class Person {
 
   }
 
-
   _assignWork() {
     this.work=null;
     if (this.age >= 65) {
@@ -67,7 +66,7 @@ class Person {
       var b = buildings[i];
       if (this.age < 20 && b.type==BType.SCHOOL) {
         this.work=b;
-      } else if (this.age >= 20 && (b.type==BType.SHOP || b.type==BType.COMPANY)) {
+      } else if (this.age >= 20 && (b.type==BType.SHOP || b.type==BType.COMPANY || b.type==BType.RESTAURANT || b.type==BType.HOSPITAL)) {
         this.work=b;
       } 
     }

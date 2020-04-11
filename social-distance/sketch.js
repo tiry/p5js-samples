@@ -1,4 +1,7 @@
 
+// optimizations?
+p5.disableFriendlyErrors=false;
+
 // canevas configuration
 var h=620;
 var w=1280;
@@ -54,6 +57,8 @@ function setup() {
     selectScenario.option(scenarios[i].title);
   }
 
+  setupPolicyUI();
+
   selectScenario.changed(function(e) {
     startSimulation();
   });
@@ -79,12 +84,15 @@ function resetSimulation(){
 
 function draw() {
 
+  var t0=millis();
+
   if (simulationCompleted) {
     displaySummary();
     paused=true;
     return;
   }
 
+  
   if (!paused) tick();
 
   background(255,255,255);
@@ -97,10 +105,13 @@ function draw() {
 
   resetMatrix();
 
+  text("FR:" + Math.round(frameRate()), 5 , 15);  
+
   if (showStats) displayStats();
   if (showLegend) displayBuildingLegend();
 
   simulationCompleted = isSimulationCompleted();
+
 }
 
 function toggleDisplayLegend() {

@@ -184,7 +184,8 @@ class Building {
     this._people=[];    
     this.type=type;
     this.capacity=this._computeCapacity();   
-    this.idx=0;     
+    this.idx=0;   
+    this.critical=false;  
   }
 
   _computeCapacity() {

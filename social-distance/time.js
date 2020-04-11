@@ -72,6 +72,7 @@ class Schedule {
             if (this.owner.icu) {
                 this.owner.icu=null;
             }
+
             if (this.owner.age < 20) {
                 this._initChildScheldule();
             } else if (this.owner.work!=null) {
@@ -112,48 +113,59 @@ class Schedule {
     }
 
     _initChildScheldule() {        
+
+        if (Policies.shelterInPlace.isActive()) {
+            return;
+        }
+
+        var endSchool=7;
         // school
-        var endSchool = this.initMonoLocation(this.owner.work, 2.9);
+        if (canGoTo(this.owner, this.owner.work)) {
+            endSchool = this.initMonoLocation(this.owner.work, 2.9);
+        }
+        
         // go to the park
         if (Math.random()<0.8) {
             var park = findInNeighborhood(this.owner.home.tile, BType.PARK, 8);
-            if (park!=null) {
+            if (park!=null && canGoTo(this.owner, park)) {
                 this._fillSlots(endSchool+2, 3, park);
             }
         } else if (Math.random()<0.5) {
             var shop = findInNeighborhood(this.owner.home.tile, BType.SHOP, 3);
-            if (shop!=null) {
+            if (shop!=null && canGoTo(this.owner, shop)) {
                 this._fillSlots(endSchool+2, 2, shop);
             }
         }
     }
 
     _initAdultScheldule() {   
+
         var d = Math.round(Math.random()*1.6);     
         var endWork = 7+d;
-        for (var i = 0; i < endWork; i++) {
-            this.slots[i+d] = this.owner.work;
+        if (canGoTo(this.owner, this.owner.work)) {
+            for (var i = 0; i < endWork; i++) {
+                this.slots[i+d] = this.owner.work;
+            }    
         }
 
         if (Math.random()<0.5) {
             var shop = findInNeighborhood(this.owner.home.tile, BType.SHOP, 4);
-            if (shop!=null) {
+            if (shop!=null && canGoTo(this.owner, shop)) {
                 this._fillSlots(endWork+2, 2, shop);
             }
         }
         else if (Math.random()<0.5) {
             var venue = findInNeighborhood(this.owner.home.tile, BType.VENUE, 7);
-            if (venue!=null) {
+            if (venue!=null && canGoTo(this.owner, venue)) {
                 this._fillSlots(endWork+3, 5, venue);
             }
         }
         else if (Math.random()<0.5) {
             var restaurant = findInNeighborhood(this.owner.home.tile, BType.RESTAURANT, 5);
-            if (restaurant!=null) {
+            if (restaurant!=null && canGoTo(this.owner, restaurant)) {
                 this._fillSlots(endWork+4, 3, restaurant);
             }
         }
-
     }
 
     getTargetLocation() {

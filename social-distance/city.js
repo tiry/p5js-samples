@@ -58,6 +58,15 @@ function initCityLayout() {
   
           for (var idx = 0; idx < n; idx++) {
             var b = new Building(t, btype);
+            // critical business
+            if (btype==BType.SHOP) {
+              if (Math.random() < 0.3) {
+                b.critical=true;
+              }
+            } else if (btype==BType.HOSPITAL) {
+              b.critical=true;
+            }
+
             b.idx = idx;
             t.deploy(b);
           }        
